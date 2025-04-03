@@ -1,0 +1,15 @@
+[package]
+name = "dop"
+version = "0.1.0"
+edition = "2024"
+
+
+
+[lib]
+name = "dop"
+path = "src/lib.rs"
+
+[dependencies]
+deno_core = "0.341.0"
+tokio = { version = "1.44", features = ["full"] }
+

@@ -1,16 +1,35 @@
 {
-  "name": "ts-lib",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "devDependencies": {
-    "typescript": "^5.8.2"
-  }
+    "name": "ts-lib",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "build": "tsc",
+        "start": "ts-node src/index.ts"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "devDependencies": {
+        "@types/express": "^5.0.1",
+        "@types/leveldown": "^4.0.6",
+        "@types/memdown": "^3.0.5",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.8.3",
+        "vitest": "^3.1.1"
+    },
+    "dependencies": {
+        "@types/level-js": "^4.0.5",
+        "classic-level": "^2.0.0",
+        "dop-engine": "^1.4.8",
+        "dop-sharedmodel": "^1.5.2",
+        "dop-wallet-stagging": "^2.6.7",
+        "express": "^5.1.0",
+        "fs": "^0.0.1-security",
+        "level-js": "^6.1.0",
+        "leveldown": "^6.1.1",
+        "memdown": "^6.1.1"
+    }
 }

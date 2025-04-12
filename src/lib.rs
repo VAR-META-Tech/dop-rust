@@ -5,6 +5,7 @@ use deno_core::{
 };
 use std::path::PathBuf;
 use std::rc::Rc;
+pub mod engine;
 
 pub struct TsLib {
     runtime: JsRuntime,
@@ -51,6 +52,37 @@ impl TsLib {
 
         // ✅ Await the returned Promise
         let resolved = self.runtime.resolve_value(promise).await?;
+
+        let scope = &mut self.runtime.handle_scope();
+        let local = v8::Local::new(scope, &resolved);
+        Ok(local.to_rust_string_lossy(scope))
+    }
+
+    pub async fn init_engine(&mut self) -> Result<(), AnyError> {
+        let script = format!(
+            "(async () => (await import('{}')).startEngine())()",
+            self.module_url
+        );
+
+        let promise = self.runtime.execute_script("init_engine.js", script)?;
+        self.runtime
+            .run_event_loop(PollEventLoopOptions::default())
+            .await?;
+        self.runtime.resolve(promise).await?;
+        Ok(())
+    }
+
+    pub async fn engine_status(&mut self) -> Result<String, AnyError> {
+        let script = format!(
+            "(async () => (await import('{}')).engineStatus())()",
+            self.module_url
+        );
+
+        let promise = self.runtime.execute_script("engine_status.js", script)?;
+        self.runtime
+            .run_event_loop(PollEventLoopOptions::default())
+            .await?;
+        let resolved = self.runtime.resolve(promise).await?;
 
         let scope = &mut self.runtime.handle_scope();
         let local = v8::Local::new(scope, &resolved);

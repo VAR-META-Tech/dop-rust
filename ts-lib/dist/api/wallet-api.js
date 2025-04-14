@@ -19,7 +19,6 @@ walletRouter.get('/wallet/:id', (req, res) => {
         res.status(404).send('Wallet not found');
     }
     else {
-        const cleaned = extractWalletInfo(wallet);
-        res.json(cleaned); // safe clean object
+        res.json(extractWalletInfo(wallet));
     }
 });

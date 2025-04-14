@@ -1,10 +1,16 @@
 #!/bin/bash
-set -e
+set -e  # Stop on error
 
-echo "Build TypeScript"
-cd ts-lib
-npm run build
+echo "================================="
+echo "Building TypeScript SDK (ts-lib)"
+echo "================================="
+
+cd ts-lib || exit 1
+npm run build || exit 1
 cd ..
 
-echo "Run Rust"
+echo "================="
+echo "Running Rust App"
+echo "================="
+
 cargo run

@@ -10,6 +10,7 @@ export const engineRouter = express.Router();
 
 engineRouter.get('/init', (req, res) => {
     try {
+        console.log("init");
         initEngine();
         res.send('Engine Initialized');
     } catch (err) {

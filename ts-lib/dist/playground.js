@@ -1,4 +1,4 @@
-import { initEngine, closeEngine, getEngineInstanceInfo } from './core/engine.js';
+import { initEngine, closeEngine } from './core/engine.js';
 import { createWallet, getWalletById } from './core/wallet.js';
 const mnemonic = 'pause crystal tornado alcohol genre cement fade large song like bag where';
 const encryptionKey = '0101010101010101010101010101010101010101010101010101010101010101';
@@ -6,9 +6,7 @@ const encryptionKey = '010101010101010101010101010101010101010101010101010101010
     console.log('Initializing Engine...');
     initEngine();
     const walletInfo = await createWallet(mnemonic, encryptionKey);
-    console.log('Created Wallet:', walletInfo);
     const wallet = getWalletById(walletInfo.id);
-    console.log('Full Wallet:', wallet);
-    console.log('Engine Info:', getEngineInstanceInfo());
+    console.log('Full Wallet:', wallet, "end");
     await closeEngine();
 })();

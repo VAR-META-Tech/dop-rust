@@ -1,5 +1,7 @@
 import express from 'express';
 import { createWallet, getWalletById } from '../core/wallet.js';
+import { extractWalletInfo } from '../utils/json.js';
+
 
 export const walletRouter = express.Router();
 
@@ -14,11 +16,17 @@ walletRouter.post('/wallet', async (req, res) => {
     }
 });
 
+
+
 walletRouter.get('/wallet/:id', (req, res) => {
     const wallet = getWalletById(req.params.id);
     if (!wallet) {
         res.status(404).send('Wallet not found');
     } else {
-        res.json(wallet);
+        const cleaned = extractWalletInfo(wallet);
+        res.json(cleaned); // safe clean object
     }
 });
+
+
+

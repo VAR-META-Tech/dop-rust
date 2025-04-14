@@ -1,4 +1,4 @@
-use reqwest;
+use reqwest::Client;
 use serde_json::Value;
 use std::process::{Child, Command};
 use std::time::Duration;
@@ -6,11 +6,15 @@ use tokio::time::sleep;
 
 pub struct DopEngine {
     child: Option<Child>,
+    client: Client,
 }
 
 impl DopEngine {
     pub fn new() -> Self {
-        Self { child: None }
+        Self {
+            child: None,
+            client: Client::new(),
+        }
     }
 
     pub fn start(&mut self) {
@@ -24,7 +28,13 @@ impl DopEngine {
 
     pub async fn wait_for_api_ready(&self) {
         for _ in 0..10 {
-            if reqwest::get("http://localhost:3000/health").await.is_ok() {
+            if self
+                .client
+                .get("http://localhost:3000/health")
+                .send()
+                .await
+                .is_ok()
+            {
                 println!("Node.js API is ready");
                 return;
             }
@@ -35,12 +45,15 @@ impl DopEngine {
     }
 
     pub async fn init_engine(&self) -> Result<(), Box<dyn std::error::Error>> {
-        reqwest::get("http://localhost:3000/init").await?;
+        self.client.get("http://localhost:3000/init").send().await?;
         Ok(())
     }
 
     pub async fn engine_status(&self) -> Result<String, Box<dyn std::error::Error>> {
-        let res = reqwest::get("http://localhost:3000/status")
+        let res = self
+            .client
+            .get("http://localhost:3000/status")
+            .send()
             .await?
             .text()
             .await?;
@@ -48,16 +61,56 @@ impl DopEngine {
     }
 
     pub async fn get_engine_info(&self) -> Result<Value, Box<dyn std::error::Error>> {
-        let res = reqwest::get("http://localhost:3000/engine")
+        let res = self
+            .client
+            .get("http://localhost:3000/engine")
+            .send()
             .await?
-            .json::<serde_json::Value>()
+            .json::<Value>()
             .await?;
         Ok(res)
     }
 
     pub async fn close_engine(&self) -> Result<(), Box<dyn std::error::Error>> {
-        reqwest::get("http://localhost:3000/close").await?;
+        self.client
+            .get("http://localhost:3000/close")
+            .send()
+            .await?;
         Ok(())
+    }
+
+    pub async fn create_wallet(
+        &self,
+        mnemonic: &str,
+        encryption_key: &str,
+    ) -> Result<Value, Box<dyn std::error::Error>> {
+        let res = self
+            .client
+            .post("http://localhost:3000/wallet")
+            .json(&serde_json::json!({
+                "mnemonic": mnemonic,
+                "encryptionKey": encryption_key,
+                "creationBlockNumbers": {
+                    "Ethereum": 0,
+                    "Polygon": 2
+                }
+            }))
+            .send()
+            .await?
+            .json::<Value>()
+            .await?;
+        Ok(res)
+    }
+
+    pub async fn get_wallet(&self, wallet_id: &str) -> Result<Value, Box<dyn std::error::Error>> {
+        let res = self
+            .client
+            .get(&format!("http://localhost:3000/wallet/{}", wallet_id))
+            .send()
+            .await?
+            .json::<Value>()
+            .await?;
+        Ok(res)
     }
 
     pub fn stop(&mut self) {

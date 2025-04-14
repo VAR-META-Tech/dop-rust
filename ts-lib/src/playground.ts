@@ -9,12 +9,9 @@ const encryptionKey = '010101010101010101010101010101010101010101010101010101010
     initEngine();
 
     const walletInfo = await createWallet(mnemonic, encryptionKey);
-    console.log('Created Wallet:', walletInfo);
 
     const wallet = getWalletById(walletInfo.id);
-    console.log('Full Wallet:', wallet);
-
-    console.log('Engine Info:', getEngineInstanceInfo());
+    console.log('Full Wallet:', wallet, "end");
 
     await closeEngine();
 })();

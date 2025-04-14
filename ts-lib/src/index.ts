@@ -1,7 +1,8 @@
-import { app } from './api.js';
+import { app } from './api/index.js';
+import { PORT } from './config.js';
 
-app.listen(3000, () => {
-  console.log('TS Engine API running...');
+app.listen(PORT, () => {
+  console.log(`TS Engine API running on port ${PORT}`);
 });
 
 app.get('/health', (req, res) => {

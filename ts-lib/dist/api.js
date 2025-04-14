@@ -1,6 +1,9 @@
 import express from 'express';
-import { greet, initEngine, getEngineInstance, closeEngine, getEngineInstanceInfo, } from './engine.js';
+import { initEngine, getEngineInstance, closeEngine, getEngineInstanceInfo, } from './engine.js';
+import { createWallet, getWalletById, } from './wallet.js';
 const app = express();
+app.use(express.json()); // Needed for parsing POST body
+// Engine Routes
 app.get('/init', (req, res) => {
     try {
         initEngine();
@@ -32,7 +35,25 @@ app.get('/close', async (req, res) => {
         res.status(500).send('Failed to close engine');
     }
 });
-app.get('/greet/:name', (req, res) => {
-    res.send(greet(req.params.name));
+// Wallet Routes
+app.post('/wallet', async (req, res) => {
+    const { mnemonic, encryptionKey } = req.body;
+    try {
+        const walletInfo = await createWallet(mnemonic, encryptionKey);
+        res.json(walletInfo);
+    }
+    catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+        res.status(500).send(errorMessage);
+    }
+});
+app.get('/wallet/:id', (req, res) => {
+    const wallet = getWalletById(req.params.id);
+    if (!wallet) {
+        res.status(404).send('Wallet not found');
+    }
+    else {
+        res.json(wallet);
+    }
 });
 export { app };

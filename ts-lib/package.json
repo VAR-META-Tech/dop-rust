@@ -6,7 +6,8 @@
         "test": "vitest run",
         "test:watch": "vitest",
         "build": "tsc",
-        "start": "ts-node src/index.ts"
+        "start": "ts-node src/index.ts",
+        "playground": "tsx src/playground.ts"
     },
     "keywords": [],
     "author": "",
@@ -17,6 +18,7 @@
         "@types/leveldown": "^4.0.6",
         "@types/memdown": "^3.0.5",
         "ts-node": "^10.9.2",
+        "tsx": "^4.19.3",
         "typescript": "^5.8.3",
         "vitest": "^3.1.1"
     },

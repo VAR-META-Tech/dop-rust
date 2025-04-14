@@ -1,15 +1,14 @@
 import express from 'express';
 import {
-    greet,
     initEngine,
     getEngineInstance,
     closeEngine,
     getEngineInstanceInfo,
-} from './engine.js';
+} from '../core/engine.js';
 
-const app = express();
+export const engineRouter = express.Router();
 
-app.get('/init', (req, res) => {
+engineRouter.get('/init', (req, res) => {
     try {
         initEngine();
         res.send('Engine Initialized');
@@ -18,12 +17,12 @@ app.get('/init', (req, res) => {
     }
 });
 
-app.get('/status', (req, res) => {
+engineRouter.get('/status', (req, res) => {
     const status = getEngineInstance() ? 'READY' : 'NOT_INITIALIZED';
     res.send(status);
 });
 
-app.get('/engine', (req, res) => {
+engineRouter.get('/engine', (req, res) => {
     const info = getEngineInstanceInfo();
     if (!info) {
         res.status(404).send('Engine Not Initialized');
@@ -32,9 +31,7 @@ app.get('/engine', (req, res) => {
     }
 });
 
-
-
-app.get('/close', async (req, res) => {
+engineRouter.get('/close', async (req, res) => {
     try {
         await closeEngine();
         res.send('Engine Closed');
@@ -42,9 +39,3 @@ app.get('/close', async (req, res) => {
         res.status(500).send('Failed to close engine');
     }
 });
-
-app.get('/greet/:name', (req, res) => {
-    res.send(greet(req.params.name));
-});
-
-export { app };

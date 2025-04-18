@@ -2,6 +2,7 @@
     "name": "ts-lib",
     "version": "1.0.0",
     "main": "index.js",
+    "type": "module",
     "scripts": {
         "test": "vitest run",
         "test:watch": "vitest",
@@ -28,6 +29,7 @@
         "dop-engine": "^1.4.8",
         "dop-sharedmodel": "^1.5.2",
         "dop-wallet-stagging": "^2.6.7",
+        "ethers": "^6.7.6",
         "express": "^5.1.0",
         "fs": "^0.0.1-security",
         "level-js": "^6.1.0",

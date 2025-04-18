@@ -7,8 +7,7 @@ import {
     stopDopEngine,
 } from 'dop-wallet-stagging';
 
-const ENGINE_TEST_DB = 'test.db';
-const db = new LevelDOWN(ENGINE_TEST_DB);
+
 
 const fileExists = async (path: string) => {
     try {
@@ -28,19 +27,35 @@ const artifactStore = new ArtifactStore(
     fileExists,
 );
 
-export const initEngine = (useNativeArtifacts = false) => {
-    console.log(`Initializing DOP engine with db: ${ENGINE_TEST_DB}`);
-    const shouldDebug = false;
+// core/engine.ts
+export const initEngine = ({
+    engineName = 'DOP Engine',
+    dbPath = 'DOP.db',
+    shouldDebug = false,
+    useNativeArtifacts = false,
+    skipMerkletreeScans = false,
+}: {
+    engineName?: string;
+    dbPath?: string;
+    shouldDebug?: boolean;
+    useNativeArtifacts?: boolean;
+    skipMerkletreeScans?: boolean;
+}) => {
+    console.log(`[Engine Init] ${engineName} with DB: ${dbPath}`);
+    const db = new LevelDOWN(dbPath);
+
     startDopEngine(
-        'test engine',
+        engineName,
         db,
         shouldDebug,
         artifactStore,
         useNativeArtifacts,
-        false,
+        skipMerkletreeScans,
     );
-    console.log('DOP engine initialized');
+
+    console.log('[Engine Init] DOP engine initialized successfully.');
 };
+
 
 export const getEngineInstance = () => getEngine();
 

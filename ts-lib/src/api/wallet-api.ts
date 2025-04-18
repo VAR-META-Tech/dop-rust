@@ -1,20 +1,27 @@
 import express from 'express';
-import { createWallet, getWalletById } from '../core/wallet.js';
+import { createWallet, generateMnemonic, getWalletById } from '../core/wallet.js';
 import { extractWalletInfo } from '../utils/json.js';
 
 
 export const walletRouter = express.Router();
 
-walletRouter.post('/wallet', async (req, res) => {
-    const { mnemonic, encryptionKey } = req.body;
-    try {
-        const walletInfo = await createWallet(mnemonic, encryptionKey);
-        res.json(walletInfo);
-    } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-        res.status(500).send(errorMessage);
-    }
+walletRouter.get('/mnemonic', (req, res) => {
+    const words = parseInt(req.query.words as string);
+    const mnemonic = generateMnemonic(words === 24 ? 24 : 12);
+    res.json({ mnemonic });
 });
+
+
+walletRouter.post('/wallet', async (req, res) => {
+    const { mnemonic, encryptionKey, creationBlockNumbers } = req.body;
+    try {
+      const walletInfo = await createWallet(mnemonic, encryptionKey, creationBlockNumbers);
+      res.json(walletInfo);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      res.status(500).send(errorMessage);
+    }
+  });
 
 
 

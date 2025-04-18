@@ -1,14 +1,29 @@
 import express from 'express';
 import { initEngine, getEngineInstance, closeEngine, getEngineInstanceInfo, } from '../core/engine.js';
 export const engineRouter = express.Router();
-engineRouter.get('/init', (req, res) => {
+// api/engine-api.ts
+engineRouter.post('/init', (req, res) => {
+    const { engineName, dbPath, shouldDebug, useNativeArtifacts, skipMerkletreeScans, } = req.body;
     try {
-        console.log("init");
-        initEngine();
-        res.send('Engine Initialized');
+        initEngine({
+            engineName,
+            dbPath,
+            shouldDebug,
+            useNativeArtifacts,
+            skipMerkletreeScans,
+        });
+        res.send({
+            message: 'Engine initialized successfully',
+            dbPath: dbPath || 'test.db',
+            engineName: engineName || 'DOP Engine',
+            debug: shouldDebug ?? false,
+            nativeArtifacts: useNativeArtifacts ?? false,
+            skipMerkletreeScans: skipMerkletreeScans ?? false,
+        });
     }
     catch (err) {
-        res.status(500).send('Failed to init engine');
+        console.error('Engine init failed:', err);
+        res.status(500).send('Failed to initialize engine');
     }
 });
 engineRouter.get('/status', (req, res) => {

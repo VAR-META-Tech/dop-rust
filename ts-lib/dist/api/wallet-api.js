@@ -1,11 +1,16 @@
 import express from 'express';
-import { createWallet, getWalletById } from '../core/wallet.js';
+import { createWallet, generateMnemonic, getWalletById } from '../core/wallet.js';
 import { extractWalletInfo } from '../utils/json.js';
 export const walletRouter = express.Router();
+walletRouter.get('/mnemonic', (req, res) => {
+    const words = parseInt(req.query.words);
+    const mnemonic = generateMnemonic(words === 24 ? 24 : 12);
+    res.json({ mnemonic });
+});
 walletRouter.post('/wallet', async (req, res) => {
-    const { mnemonic, encryptionKey } = req.body;
+    const { mnemonic, encryptionKey, creationBlockNumbers } = req.body;
     try {
-        const walletInfo = await createWallet(mnemonic, encryptionKey);
+        const walletInfo = await createWallet(mnemonic, encryptionKey, creationBlockNumbers);
         res.json(walletInfo);
     }
     catch (err) {

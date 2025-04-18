@@ -83,22 +83,6 @@ impl DopEngine {
         Ok(())
     }
     
-
-    pub async fn engine_status(&self) -> Result<String> {
-        let res = self
-            .client
-            .get(&format!("{}/status", self.base_url()))
-            .send()
-            .await?
-            .json::<Value>()
-            .await?;
-    
-        res.get("status")
-            .and_then(|v| v.as_str())
-            .map(str::to_string)
-            .ok_or_else(|| anyhow::anyhow!("Missing status in response"))
-    }
-    
     pub async fn get_engine_info(&self) -> Result<Value> {
         let res = self
             .client

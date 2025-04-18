@@ -1,32 +1,8 @@
 use dop::engine::DopEngine;
 use std::collections::HashMap;
 use serial_test::serial;
-#[tokio::test]
-#[serial]
-async fn test_engine_status_and_info() -> Result<(), anyhow::Error> {
-    let mut engine = DopEngine::new();
-    engine.start();
-    engine.wait_for_api_ready().await;
 
-    engine
-        .init_engine(
-            Some("test-status.db"),
-            Some("Test Status Engine"),
-            Some(false),
-            Some(false),
-            Some(false),
-        )
-        .await?;
 
-    let status = engine.engine_status().await?;
-    assert_eq!(status, "READY", "Engine should be READY");
-
-    let info = engine.get_engine_info().await?;
-    assert!(info.get("wallets").is_some(), "Engine info should include wallets field");
-
-    engine.close_engine().await?;
-    Ok(())
-}
 
 #[tokio::test]
 #[serial]
@@ -37,8 +13,8 @@ async fn test_generate_create_and_get_wallet() -> Result<(), anyhow::Error> {
 
     engine
         .init_engine(
-            Some("test-wallet.db"),
-            Some("Test Wallet Engine"),
+            Some("database/DOP.db"),
+            Some("DOP Engine"),
             Some(false),
             Some(false),
             Some(false),

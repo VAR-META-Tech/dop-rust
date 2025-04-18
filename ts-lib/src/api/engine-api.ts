@@ -42,11 +42,6 @@ engineRouter.post('/init', (req, res) => {
 });
 
 
-engineRouter.get('/status', (req, res) => {
-    const status = getEngineInstance() ? 'READY' : 'NOT_INITIALIZED';
-    res.send(status);
-});
-
 engineRouter.get('/engine', (req, res) => {
     const info = getEngineInstanceInfo();
     if (!info) {

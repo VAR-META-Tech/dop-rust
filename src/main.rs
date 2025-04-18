@@ -12,7 +12,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ✅ Initialize engine with dynamic config
     engine
         .init_engine(
-            Some("DOP.db"),          // db path
+            Some("database/DOP.db"),          // db path
             Some("Rust Init Engine"), // engine name
             Some(false),              // shouldDebug
             Some(false),              // useNativeArtifacts
@@ -20,8 +20,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .await?;
 
-    println!("Engine Status: {}", engine.engine_status().await?);
-
+    // println!("Engine Status: {}", engine.engine_status().await?);
+    let info = engine.get_engine_info().await?;
+    assert!(info.get("wallets").is_some(), "Engine info should include wallets field");
     // ✅ Generate a new mnemonic with 12 words
     let mnemonic = engine.generate_mnemonic(Some(12)).await?;
     println!("Generated Mnemonic: {}", mnemonic);

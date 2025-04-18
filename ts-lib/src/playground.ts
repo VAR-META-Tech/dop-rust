@@ -10,7 +10,7 @@ const encryptionKey =
   try {
     initEngine({
       engineName: 'DOP Engine',
-      dbPath: 'DOP.db',
+      dbPath: 'database/DOP.db',
       shouldDebug: false,
       useNativeArtifacts: true,
       skipMerkletreeScans: false,

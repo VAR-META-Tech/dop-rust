@@ -30,7 +30,7 @@ const artifactStore = new ArtifactStore(
 // core/engine.ts
 export const initEngine = ({
     engineName = 'DOP Engine',
-    dbPath = 'DOP.db',
+    dbPath = 'database/DOP.db',
     shouldDebug = false,
     useNativeArtifacts = false,
     skipMerkletreeScans = false,

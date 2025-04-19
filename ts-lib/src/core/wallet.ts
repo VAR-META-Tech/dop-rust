@@ -36,8 +36,8 @@ export const generateMnemonic = (words: 12 | 24 = 12): string => {
 };
 
 
-export const getWalletShareableViewingKeyById = (id: string) => {
-  return getWalletShareableViewingKey(id);
+export const getWalletShareableViewingKeyById = async (id: string) => {
+  return await getWalletShareableViewingKey(id);
 };
 
 export const createViewOnlyWallet = (

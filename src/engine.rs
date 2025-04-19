@@ -66,7 +66,7 @@ impl DopEngine {
         skip_merkletree_scans: Option<bool>,
     ) -> Result<()> {
         let payload = json!({
-            "dbPath": db_path.unwrap_or("DOP.db"),
+            "dbPath": db_path.unwrap_or("database/DOP.db"),
             "engineName": engine_name.unwrap_or("DOP Engine"),
             "shouldDebug": should_debug.unwrap_or(false),
             "useNativeArtifacts": use_native_artifacts.unwrap_or(false),
@@ -175,6 +175,138 @@ impl DopEngine {
             }
         }
     }
+
+    pub async fn set_loggers(&self) -> Result<()> {
+        self.client
+            .post(&format!("{}/set-loggers", self.base_url()))
+            .send()
+            .await?
+            .error_for_status()
+            .context("Failed to call /set-loggers")?;
+        Ok(())
+    }
+    
+    pub async fn load_provider(&self, config: Value, network: &str, polling_interval: u64) -> Result<Value> {
+        let res = self
+            .client
+            .post(&format!("{}/load-provider", self.base_url()))
+            .json(&serde_json::json!({
+                "config": config,
+                "network": network,
+                "pollingInterval": polling_interval
+            }))
+            .send()
+            .await?
+            .json::<Value>()
+            .await?;
+    
+        Ok(res)
+    }
+
+    pub async fn get_shareable_viewing_key(&self, wallet_id: &str) -> Result<String> {
+        let res = self
+            .client
+            .get(&format!("{}/wallet/{}/shareable-viewing-key", self.base_url(), wallet_id))
+            .send()
+            .await?
+            .json::<Value>()
+            .await?;
+    
+        res.get("shareableViewingKey")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string())
+            .ok_or_else(|| anyhow::anyhow!("Missing shareableViewingKey in response"))
+    }
+    pub async fn create_view_only_wallet(
+        &self,
+        encryption_key: &str,
+        shareable_viewing_key: &str,
+        creation_block_numbers: Option<HashMap<&str, u64>>,
+    ) -> Result<Value> {
+        let mut payload = json!({
+            "encryptionKey": encryption_key,
+            "shareableViewingKey": shareable_viewing_key,
+        });
+    
+        if let Some(blocks) = creation_block_numbers {
+            payload["creationBlockNumbers"] = json!(blocks);
+        }
+    
+        let res = self
+            .client
+            .post(&format!("{}/wallet/view-only", self.base_url()))
+            .json(&payload)
+            .send()
+            .await?
+            .json::<Value>()
+            .await?;
+    
+        Ok(res)
+    }
+    pub async fn gas_estimate_for_unproven_transfer(
+        &self,
+        network: &str,
+        wallet_id: &str,
+        encryption_key: &str,
+        memo: &str,
+        token_amount_recipients: Vec<Value>,
+        nft_amount_recipients: Vec<Value>,
+        tx_gas_details: Value,
+        fee_token_details: Value,
+        send_with_public_wallet: bool,
+    ) -> Result<Value> {
+        let payload = serde_json::json!({
+            "network": network,
+            "walletId": wallet_id,
+            "encryptionKey": encryption_key,
+            "memoText": memo,
+            "erc20AmountRecipients": token_amount_recipients,
+            "nftAmountRecipients": nft_amount_recipients,
+            "transactionGasDetailsSerialized": tx_gas_details,
+            "feeTokenDetails": fee_token_details,
+            "sendWithPublicWallet": send_with_public_wallet
+        });
+    
+        let res = self
+            .client
+            .post(&format!("{}/gas-estimate-unproven", self.base_url()))
+            .json(&payload)
+            .send()
+            .await?
+            .json::<Value>()
+            .await?;
+    
+        Ok(res)
+    }
+    pub async fn generate_transfer_proof(
+        &self,
+        payload: serde_json::Value,
+    ) -> Result<Value> {
+        let res = self
+            .client
+            .post(&format!("{}/generate-transfer-proof", self.base_url()))
+            .json(&payload)
+            .send()
+            .await?
+            .json::<Value>()
+            .await?;
+        Ok(res)
+    }
+    pub async fn populate_proved_transfer(&self, payload: Value) -> Result<Value> {
+        let res = self
+            .client
+            .post(&format!("{}/populate-transfer", self.base_url()))
+            .json(&payload)
+            .send()
+            .await?
+            .error_for_status()?
+            .json::<Value>()
+            .await?;
+    
+        Ok(res)
+    }
+    
+    
 }
 
 impl Drop for DopEngine {

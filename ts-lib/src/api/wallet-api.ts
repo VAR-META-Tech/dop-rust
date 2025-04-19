@@ -1,5 +1,5 @@
 import express from 'express';
-import { createWallet, generateMnemonic, getWalletById } from '../core/wallet.js';
+import { createViewOnlyWallet, createWallet, generateMnemonic, getWalletById, getWalletShareableViewingKeyById } from '../core/wallet.js';
 import { extractWalletInfo } from '../utils/json.js';
 
 
@@ -33,5 +33,31 @@ walletRouter.get('/wallet/:id', (req, res) => {
         res.json(extractWalletInfo(wallet));
     }
 });
+
+
+walletRouter.get('/wallet/:id/shareable-viewing-key', async (req, res) => {
+  try {
+    const key = await  getWalletShareableViewingKeyById(req.params.id);
+    res.json({ shareableViewingKey: key });
+  } catch (err) {
+    res.status(500).send('Failed to get shareable viewing key');
+  }
+});
+
+walletRouter.post('/wallet/view-only', async (req, res) => {
+  const { encryptionKey, shareableViewingKey, creationBlockNumbers } = req.body;
+
+  try {
+    const walletInfo = await createViewOnlyWallet(
+      encryptionKey,
+      shareableViewingKey,
+      creationBlockNumbers
+    );
+    res.json(walletInfo);
+  } catch (err) {
+    res.status(500).send('Failed to create view-only wallet');
+  }
+});
+
 
 

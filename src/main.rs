@@ -46,8 +46,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let Some(id) = wallet_info.get("id").and_then(|v| v.as_str()) {
         let wallet = engine.get_wallet(id).await?;
         println!("Wallet Detail: {:#?}", wallet);
-    }
 
+        let share_key = engine.get_shareable_viewing_key(id).await?;
+        let view_only = engine
+            .create_view_only_wallet(&encryption_key, &share_key, None)
+            .await?;
+        println!("🔐 View-Only Wallet: {:#?}", view_only);
+    }
+   
+    
     // ✅ Call close explicitly
     engine.close_engine().await?;
     Ok(())

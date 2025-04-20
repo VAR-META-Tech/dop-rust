@@ -5,11 +5,14 @@ import {
     closeEngine,
     getEngineInstanceInfo,
 } from '../core/engine.js';
+import { gasEstimateForUnprovenTransfer, generateTransferProof, loadProvider, populateProvedTransfer, setLoggers } from 'dop-wallet-v3';
+// engine-api.ts
+
 
 export const engineRouter = express.Router();
 
 // api/engine-api.ts
-engineRouter.post('/init', (req, res) => {
+engineRouter.post('/init', async (req, res) => {
     const {
         engineName,
         dbPath,
@@ -19,7 +22,7 @@ engineRouter.post('/init', (req, res) => {
     } = req.body;
 
     try {
-        initEngine({
+        await initEngine({
             engineName,
             dbPath,
             shouldDebug,
@@ -60,8 +63,7 @@ engineRouter.get('/close', async (req, res) => {
     }
 });
 
-// engine-api.ts
-import { setLoggers, loadProvider, gasEstimateForUnprovenTransfer, generateTransferProof, populateProvedTransfer } from 'dop-wallet-stagging';
+
 
 engineRouter.post('/set-loggers', (req, res) => {
     try {
@@ -91,6 +93,7 @@ engineRouter.post('/gas-estimate-unproven', async (req, res) => {
     try {
         console.log('Gas estimate request:', req.body);
       const result = await gasEstimateForUnprovenTransfer(
+        req.body.txidVersion,
         req.body.network,
         req.body.walletId,
         req.body.encryptionKey,
@@ -99,7 +102,7 @@ engineRouter.post('/gas-estimate-unproven', async (req, res) => {
         req.body.nftAmountRecipients,
         req.body.transactionGasDetailsSerialized,
         req.body.feeTokenDetails,
-        req.body.sendWithPublicWallet
+        req.body.sendWithPublicWallet,
       );
       res.json(result);
     } catch (err) {
@@ -111,17 +114,18 @@ engineRouter.post('/gas-estimate-unproven', async (req, res) => {
   engineRouter.post('/generate-transfer-proof', async (req, res) => {
     try {
       const result = await generateTransferProof(
+        req.body.txidVersion,
         req.body.network,
         req.body.walletId,
         req.body.encryptionKey,
         req.body.showSenderAddressToRecipient,
         req.body.memo,
-        req.body.tokenAmountRecipients,
+        req.body.erc20AmountRecipients,
         req.body.nftAmountRecipients,
-        req.body.relayerFeeERC20AmountRecipient,
+        req.body.broadcasterFeeERC20AmountRecipient,
         req.body.sendWithPublicWallet,
         req.body.overallBatchMinGasPrice,
-        () => {} // optional: progress callback
+        () => {},
       );
   
       res.json(result);
@@ -133,6 +137,7 @@ engineRouter.post('/gas-estimate-unproven', async (req, res) => {
 
   engineRouter.post('/populate-transfer', async (req, res) => {
     const {
+      txidVersion,
       network,
       walletId,
       showSenderAddressToRecipient,
@@ -147,6 +152,7 @@ engineRouter.post('/gas-estimate-unproven', async (req, res) => {
     console.log('Populate transfer request:', req.body);
     try {
       const tx = await populateProvedTransfer(
+        txidVersion,
         network,
         walletId,
         showSenderAddressToRecipient,

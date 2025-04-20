@@ -26,10 +26,9 @@
     "dependencies": {
         "@types/level-js": "^4.0.5",
         "classic-level": "^2.0.0",
-        "dop-engine": "^1.4.8",
-        "dop-sharedmodel": "^1.5.2",
-        "dop-wallet-stagging": "^2.6.7",
-        "ethers": "^6.7.6",
+        "dop-engine-v3": "^1.4.6",
+        "dop-sharedmodels-v3": "^1.1.4",
+        "dop-wallet-v3": "^1.8.1",
         "express": "^5.1.0",
         "fs": "^0.0.1-security",
         "level-js": "^6.1.0",

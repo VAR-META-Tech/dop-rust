@@ -1,5 +1,7 @@
 import express from 'express';
 import { initEngine, closeEngine, getEngineInstanceInfo, } from '../core/engine.js';
+import { gasEstimateForUnprovenTransfer, generateTransferProof, loadProvider, populateProvedTransfer, setLoggers } from 'dop-wallet-v3';
+// engine-api.ts
 export const engineRouter = express.Router();
 // api/engine-api.ts
 engineRouter.post('/init', (req, res) => {
@@ -44,8 +46,6 @@ engineRouter.get('/close', async (req, res) => {
         res.status(500).send('Failed to close engine');
     }
 });
-// engine-api.ts
-import { setLoggers, loadProvider, gasEstimateForUnprovenTransfer, generateTransferProof, populateProvedTransfer } from 'dop-wallet-stagging';
 engineRouter.post('/set-loggers', (req, res) => {
     try {
         const log = (...args) => console.log('[DOP]', ...args);
@@ -71,7 +71,7 @@ engineRouter.post('/load-provider', async (req, res) => {
 engineRouter.post('/gas-estimate-unproven', async (req, res) => {
     try {
         console.log('Gas estimate request:', req.body);
-        const result = await gasEstimateForUnprovenTransfer(req.body.network, req.body.walletId, req.body.encryptionKey, req.body.memoText, req.body.erc20AmountRecipients, req.body.nftAmountRecipients, req.body.transactionGasDetailsSerialized, req.body.feeTokenDetails, req.body.sendWithPublicWallet);
+        const result = await gasEstimateForUnprovenTransfer(req.body.txidVersion, req.body.network, req.body.walletId, req.body.encryptionKey, req.body.memoText, req.body.erc20AmountRecipients, req.body.nftAmountRecipients, req.body.transactionGasDetailsSerialized, req.body.feeTokenDetails, req.body.sendWithPublicWallet);
         res.json(result);
     }
     catch (err) {
@@ -81,8 +81,7 @@ engineRouter.post('/gas-estimate-unproven', async (req, res) => {
 });
 engineRouter.post('/generate-transfer-proof', async (req, res) => {
     try {
-        const result = await generateTransferProof(req.body.network, req.body.walletId, req.body.encryptionKey, req.body.showSenderAddressToRecipient, req.body.memo, req.body.tokenAmountRecipients, req.body.nftAmountRecipients, req.body.relayerFeeERC20AmountRecipient, req.body.sendWithPublicWallet, req.body.overallBatchMinGasPrice, () => { } // optional: progress callback
-        );
+        const result = await generateTransferProof(req.body.txidVersion, req.body.network, req.body.walletId, req.body.encryptionKey, req.body.showSenderAddressToRecipient, req.body.memo, req.body.erc20AmountRecipients, req.body.nftAmountRecipients, req.body.broadcasterFeeERC20AmountRecipient, req.body.sendWithPublicWallet, req.body.overallBatchMinGasPrice, () => { });
         res.json(result);
     }
     catch (err) {
@@ -91,10 +90,10 @@ engineRouter.post('/generate-transfer-proof', async (req, res) => {
     }
 });
 engineRouter.post('/populate-transfer', async (req, res) => {
-    const { network, walletId, showSenderAddressToRecipient, memo, tokenAmountRecipients, nftAmountRecipients, relayerFeeERC20AmountRecipient, sendWithPublicWallet, overallBatchMinGasPrice, gasDetails, } = req.body;
+    const { txidVersion, network, walletId, showSenderAddressToRecipient, memo, tokenAmountRecipients, nftAmountRecipients, relayerFeeERC20AmountRecipient, sendWithPublicWallet, overallBatchMinGasPrice, gasDetails, } = req.body;
     console.log('Populate transfer request:', req.body);
     try {
-        const tx = await populateProvedTransfer(network, walletId, showSenderAddressToRecipient, memo, tokenAmountRecipients, nftAmountRecipients, relayerFeeERC20AmountRecipient, sendWithPublicWallet, BigInt(overallBatchMinGasPrice), gasDetails);
+        const tx = await populateProvedTransfer(txidVersion, network, walletId, showSenderAddressToRecipient, memo, tokenAmountRecipients, nftAmountRecipients, relayerFeeERC20AmountRecipient, sendWithPublicWallet, BigInt(overallBatchMinGasPrice), gasDetails);
         res.json(tx);
     }
     catch (err) {

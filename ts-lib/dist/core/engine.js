@@ -1,6 +1,6 @@
 import LevelDOWN from 'leveldown';
 import fs from 'fs';
-import { ArtifactStore, getEngine, startDopEngine, stopDopEngine, } from 'dop-wallet-stagging';
+import { ArtifactStore, getEngine, startDopEngine, stopDopEngine } from 'dop-wallet-v3';
 const fileExists = async (path) => {
     try {
         await fs.promises.access(path);
@@ -28,11 +28,9 @@ export const getEngineInstanceInfo = () => {
         return null;
     console.log('Engine instance:', engine);
     return {
-        merkletrees: engine.merkletrees,
         wallets: Object.keys(engine?.wallets || {}),
         deploymentBlocks: engine?.deploymentBlocks,
         dopSmartWalletContracts: engine?.dopSmartWalletContracts,
-        relayAdaptContracts: engine?.relayAdaptContracts,
     };
 };
 export const closeEngine = async () => {

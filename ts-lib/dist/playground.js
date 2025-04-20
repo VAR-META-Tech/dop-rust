@@ -1,6 +1,6 @@
-import { createDopWallet, fullWalletForID, generateTransferProof } from 'dop-wallet-stagging';
+import { EVMGasType, isDefined, NFTTokenType } from 'dop-sharedmodels-v3';
 import { initEngine, closeEngine } from './core/engine.js';
-import { EVMGasType, isDefined, NetworkName, NFTTokenType } from 'dop-sharedmodel';
+import { createDopWallet, fullWalletForID } from 'dop-wallet-v3';
 export const MOCK_FALLBACK_PROVIDER_JSON_CONFIG = {
     chainId: 137,
     providers: [
@@ -96,19 +96,7 @@ const overallBatchMinGasPrice = BigInt('0x1000');
             throw new Error('Expected dopWalletInfo');
         }
         let dopWallet = fullWalletForID(dopWalletInfo.id);
-        const relayerWalletInfo = await createDopWallet(MOCK_DB_ENCRYPTION_KEY, MOCK_MNEMONIC, undefined);
-        if (!isDefined(relayerWalletInfo)) {
-            throw new Error('Expected relayerWalletInfo');
-        }
-        const relayerDopAddress = relayerWalletInfo.dopAddress;
-        let relayerFeeERC20AmountRecipient = {
-            ...MOCK_TOKEN_FEE,
-            recipientAddress: relayerDopAddress,
-        };
-        const res = await generateTransferProof(NetworkName.Polygon, dopWallet.id, MOCK_DB_ENCRYPTION_KEY, true, // showSenderAddressToRecipient
-        MOCK_MEMO, MOCK_TOKEN_AMOUNT_RECIPIENTS, MOCK_NFT_AMOUNT_RECIPIENTS, relayerFeeERC20AmountRecipient, false, // sendWithPublicWallet
-        overallBatchMinGasPrice, () => { });
-        console.log(res);
+        console.log('DOP Wallet:', dopWallet);
     }
     catch (err) {
         console.error('❌ Playground Error:', err);

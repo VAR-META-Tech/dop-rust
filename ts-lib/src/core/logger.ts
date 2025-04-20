@@ -1,9 +1,10 @@
 // core/logger.ts
-import { setLoggers as dopSetLoggers } from 'dop-wallet-stagging';
+
+import { setLoggers } from "dop-wallet-v3";
 
 export const setEngineLoggers = (
   log: (msg: string) => void = console.log,
   error: (msg: string) => void = console.error
 ) => {
-  dopSetLoggers(log, error);
+  setLoggers(log, error);
 };

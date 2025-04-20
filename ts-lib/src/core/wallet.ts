@@ -1,10 +1,6 @@
-import { DopWalletInfo } from 'dop-sharedmodel';
-import {
-    createDopWallet,
-    createViewOnlyDopWallet,
-    fullWalletForID,
-    getWalletShareableViewingKey,
-} from 'dop-wallet-stagging';
+
+import { DopWalletInfo } from 'dop-sharedmodels-v3';
+import { createDopWallet, createViewOnlyDopWallet, fullWalletForID, getWalletShareableViewingKey } from 'dop-wallet-v3';
 import { Mnemonic, randomBytes } from 'ethers';
 
 export const createWallet = async (

@@ -1,8 +1,8 @@
-import { createDopWallet, createViewOnlyDopWallet, fullWalletForID, gasEstimateForUnprovenTransfer, generateTransferProof, getWalletShareableViewingKey, loadProvider } from 'dop-wallet-stagging';
+import { EVMGasType, FallbackProviderJsonConfig, isDefined, NetworkName, NFTTokenType, TransactionGasDetailsType2 } from 'dop-sharedmodels-v3';
 import { initEngine, closeEngine, getEngineInstanceInfo } from './core/engine.js';
 import { createWallet, getWalletById } from './core/wallet.js';
 import { FallbackProvider, Mnemonic, randomBytes } from 'ethers';
-import { calculateGasLimit, EVMGasType, isDefined, NetworkName, NFTTokenType, TransactionGasDetailsType2 } from 'dop-sharedmodel';
+import { createDopWallet, fullWalletForID, loadProvider } from 'dop-wallet-v3';
 export const MOCK_FALLBACK_PROVIDER_JSON_CONFIG = {
   chainId: 137,
   providers: [
@@ -97,11 +97,40 @@ const encryptionKey =
     amount: BigInt(0x0300),
   };
   const overallBatchMinGasPrice = BigInt('0x1000');
-
+  const loadEngineProvider = async () => {
+    const ETH_PROVIDERS_JSON: FallbackProviderJsonConfig = {
+    "chainId": 1,
+    "providers": [
+    {
+    "provider": "https://cloudflare-eth.com/",
+    "priority": 1,
+    "weight": 1
+    },
+    {
+    "provider": "https://rpc.ankr.com/eth",
+    "priority": 2,
+    "weight": 1
+    },
+    ]
+    }
+    const pollingInterval = 1000 * 60 * 5; // 5 min
+    try {
+      const { feesSerialized } = await loadProvider(
+        ETH_PROVIDERS_JSON,
+        NetworkName.Ethereum,
+        pollingInterval,
+      );
+      console.log('Fees:', feesSerialized);
+    } catch (err) {
+      console.error('❌ Failed to load provider:', err);
+    }
+    
+    }
+    
 (async () => {
   console.log('🔧 Initializing DOP Engine...');
   try {
-    initEngine({
+    await initEngine({
       engineName: 'DOP Engine',
       dbPath: 'database/DOP.db',
       shouldDebug: false,
@@ -118,38 +147,8 @@ const encryptionKey =
       throw new Error('Expected dopWalletInfo');
     }
     let dopWallet = fullWalletForID(dopWalletInfo.id);
-
-    const relayerWalletInfo = await createDopWallet(
-      MOCK_DB_ENCRYPTION_KEY,
-      MOCK_MNEMONIC,
-      undefined, // creationBlockNumbers
-    );
-    if (!isDefined(relayerWalletInfo)) {
-      throw new Error('Expected relayerWalletInfo');
-    }
-
-    const relayerDopAddress = relayerWalletInfo.dopAddress;
-
-    let relayerFeeERC20AmountRecipient = {
-      ...MOCK_TOKEN_FEE,
-      recipientAddress: relayerDopAddress,
-    };
-
-
-    const res = await generateTransferProof(
-      NetworkName.Polygon,
-      dopWallet.id,
-      MOCK_DB_ENCRYPTION_KEY,
-      true, // showSenderAddressToRecipient
-      MOCK_MEMO,
-      MOCK_TOKEN_AMOUNT_RECIPIENTS,
-      MOCK_NFT_AMOUNT_RECIPIENTS,
-      relayerFeeERC20AmountRecipient,
-      false, // sendWithPublicWallet
-      overallBatchMinGasPrice,
-      () => {}, // progressCallback
-    );
-      console.log(res);
+    console.log('DOP Wallet:', dopWallet);
+    await loadEngineProvider();
   } catch (err) {
     console.error('❌ Playground Error:', err);
   } finally {

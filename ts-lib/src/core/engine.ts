@@ -1,11 +1,6 @@
 import LevelDOWN from 'leveldown';
 import fs from 'fs';
-import {
-    ArtifactStore,
-    getEngine,
-    startDopEngine,
-    stopDopEngine,
-} from 'dop-wallet-stagging';
+import { ArtifactStore, getEngine, startDopEngine, stopDopEngine } from 'dop-wallet-v3';
 
 
 
@@ -28,7 +23,7 @@ const artifactStore = new ArtifactStore(
 );
 
 // core/engine.ts
-export const initEngine = ({
+export const initEngine = async ({
     engineName = 'DOP Engine',
     dbPath = 'database/DOP.db',
     shouldDebug = false,
@@ -44,7 +39,7 @@ export const initEngine = ({
     console.log(`[Engine Init] ${engineName} with DB: ${dbPath}`);
     const db = new LevelDOWN(dbPath);
 
-    startDopEngine(
+    await startDopEngine(
         engineName,
         db,
         shouldDebug,
@@ -64,11 +59,9 @@ export const getEngineInstanceInfo = () => {
     if (!engine) return null;
     console.log('Engine instance:', engine);
     return {
-        merkletrees: engine.merkletrees,
         wallets: Object.keys(engine?.wallets || {}),
         deploymentBlocks: engine?.deploymentBlocks,
         dopSmartWalletContracts: engine?.dopSmartWalletContracts,
-        relayAdaptContracts: engine?.relayAdaptContracts,
     };
 };
 

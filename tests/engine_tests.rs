@@ -6,124 +6,124 @@ use serial_test::serial;
 
 
 
-// #[tokio::test]
-// #[serial]
-// async fn test_engine_lifecycle() -> Result<()> {
-//     let mut engine = DopEngine::new();
+#[tokio::test]
+#[serial]
+async fn test_engine_lifecycle() -> Result<()> {
+    let mut engine = DopEngine::new();
 
-//     engine.start();
-//     engine.wait_for_api_ready().await;
+    engine.start();
+    engine.wait_for_api_ready().await;
 
-//     engine.init_engine(None, None, None, None, None).await?;
+    engine.init_engine(None, None, None, None, None).await?;
 
-//     engine.close_engine().await?;
-//     Ok(())
-// }
+    engine.close_engine().await?;
+    Ok(())
+}
 
-// #[tokio::test]
-// #[serial]
-// async fn test_engine_info() -> Result<(), anyhow::Error> {
-//     let mut engine = DopEngine::new();
-//     engine.start();
-//     engine.wait_for_api_ready().await;
+#[tokio::test]
+#[serial]
+async fn test_engine_info() -> Result<(), anyhow::Error> {
+    let mut engine = DopEngine::new();
+    engine.start();
+    engine.wait_for_api_ready().await;
 
-//     engine
-//         .init_engine(
-//             Some("database/DOP.db"),
-//             Some("DOP Engine"),
-//             Some(false),
-//             Some(false),
-//             Some(false),
-//         )
-//         .await?;
+    engine
+        .init_engine(
+            Some("database/DOP.db"),
+            Some("DOP Engine"),
+            Some(false),
+            Some(false),
+            Some(false),
+        )
+        .await?;
 
-//     let info = engine.get_engine_info().await?;
-//     assert!(info.get("wallets").is_some(), "Engine info should include wallets field");
+    let info = engine.get_engine_info().await?;
+    assert!(info.get("wallets").is_some(), "Engine info should include wallets field");
 
-//     engine.close_engine().await?;
-//     Ok(())
-// }
-// #[tokio::test]
-// #[serial]
-// async fn test_set_loggers() -> Result<()> {
-//     let mut engine = DopEngine::new();
+    engine.close_engine().await?;
+    Ok(())
+}
+#[tokio::test]
+#[serial]
+async fn test_set_loggers() -> Result<()> {
+    let mut engine = DopEngine::new();
 
-//     engine.start();
-//     engine.wait_for_api_ready().await;
+    engine.start();
+    engine.wait_for_api_ready().await;
 
-//     engine
-//         .init_engine(
-//             Some("database/DOP.db"),
-//             Some("DOP Engine"),
-//             Some(true),  // shouldDebug enabled
-//             Some(true),  // useNativeArtifacts
-//             Some(false),
-//         )
-//         .await?;
+    engine
+        .init_engine(
+            Some("database/DOP.db"),
+            Some("DOP Engine"),
+            Some(true),  // shouldDebug enabled
+            Some(true),  // useNativeArtifacts
+            Some(false),
+        )
+        .await?;
 
-//     // ✅ Set logger
-//     let result = engine.set_loggers().await;
-//     println!("Set loggers result: {:#?}", result);
-//     assert!(result.is_ok(), "Failed to set loggers");
+    // ✅ Set logger
+    let result = engine.set_loggers().await;
+    println!("Set loggers result: {:#?}", result);
+    assert!(result.is_ok(), "Failed to set loggers");
 
-//     engine.close_engine().await?;
-//     Ok(())
-// }
+    engine.close_engine().await?;
+    Ok(())
+}
 
 
-// #[tokio::test]
-// #[serial]
-// async fn test_load_provider() -> Result<(), anyhow::Error> {
-//     let mut engine = DopEngine::new();
-//     engine.start();
-//     engine.wait_for_api_ready().await;
+#[tokio::test]
+#[serial]
+async fn test_load_provider() -> Result<(), anyhow::Error> {
+    let mut engine = DopEngine::new();
+    engine.start();
+    engine.wait_for_api_ready().await;
 
-//     engine
-//         .init_engine(
-//             Some("database/DOP.db"),
-//             Some("DOP Engine"),
-//             Some(false),
-//             Some(true),
-//             Some(false),
-//         )
-//         .await?;
+    engine
+        .init_engine(
+            Some("database/DOP.db"),
+            Some("DOP Engine"),
+            Some(false),
+            Some(true),
+            Some(false),
+        )
+        .await?;
 
-//     let config = serde_json::json!({
-//         "chainId": 137,
-//         "providers": [
-//             {
-//                 "provider": "https://light-serene-feather.matic.quiknode.pro/f0cdd8c4c146e68ce2f935bba399ca66cbe45868/",
-//                 "priority": 1,
-//                 "weight": 2,
-//                 "maxLogsPerBatch": 10,
-//                 "stallTimeout": 2500
-//             },
-//             {
-//                 "provider": "https://polygon-bor.publicnode.com",
-//                 "priority": 1,
-//                 "weight": 2,
-//                 "maxLogsPerBatch": 10,
-//                 "stallTimeout": 2500
-//             },
-//             {
-//                 "provider": "https://light-serene-feather.matic.quiknode.pro/f0cdd8c4c146e68ce2f935bba399ca66cbe45868/",
-//                 "priority": 2,
-//                 "weight": 2,
-//                 "maxLogsPerBatch": 10
-//             }
-//         ]
-//     });
+    let config = serde_json::json!({
+        "chainId": 137,
+        "providers": [
+            {
+                "provider": "https://light-serene-feather.matic.quiknode.pro/f0cdd8c4c146e68ce2f935bba399ca66cbe45868/",
+                "priority": 1,
+                "weight": 2,
+                "maxLogsPerBatch": 10,
+                "stallTimeout": 2500
+            },
+            {
+                "provider": "https://polygon-bor.publicnode.com",
+                "priority": 1,
+                "weight": 2,
+                "maxLogsPerBatch": 10,
+                "stallTimeout": 2500
+            },
+            {
+                "provider": "https://light-serene-feather.matic.quiknode.pro/f0cdd8c4c146e68ce2f935bba399ca66cbe45868/",
+                "priority": 2,
+                "weight": 2,
+                "maxLogsPerBatch": 10
+            }
+        ]
+    });
 
-//     let result = engine
-//         .load_provider(config, "Polygon", 10_000)
-//         .await?;
+    let result = engine
+        .load_provider(config, "Polygon", 10_000)
+        .await?;
 
-//     println!("Provider loaded: {:#?}", result);
-//     assert!(result.is_object(), "Expected JSON object");
+    println!("Provider loaded: {:#?}", result);
+    assert!(result.is_object(), "Expected JSON object");
 
-//     engine.close_engine().await?;
-//     Ok(())
-// }
+    engine.close_engine().await?;
+    Ok(())
+}
 
 // #[tokio::test]
 // #[serial]
@@ -257,46 +257,46 @@ use serial_test::serial;
 // }
 
 
-#[tokio::test]
-#[serial]
-async fn test_populate_proved_transfer() -> Result<()> {
-    let mut engine = DopEngine::new();
-    engine.start();
-    engine.wait_for_api_ready().await;
-    engine
-        .init_engine(
-            Some("database/test-populate-transfer.db"),
-            Some("Transfer Engine"),
-            Some(false),
-            Some(true),
-            Some(false),
-        )
-        .await?;
+// #[tokio::test]
+// #[serial]
+// async fn test_populate_proved_transfer() -> Result<()> {
+//     let mut engine = DopEngine::new();
+//     engine.start();
+//     engine.wait_for_api_ready().await;
+//     engine
+//         .init_engine(
+//             Some("database/test-populate-transfer.db"),
+//             Some("Transfer Engine"),
+//             Some(false),
+//             Some(true),
+//             Some(false),
+//         )
+//         .await?;
 
-    // Assumes generate_transfer_proof was called already
-    let payload = json!({
-        "network": "Polygon",
-        "walletId": "your_wallet_id",
-        "showSenderAddressToRecipient": true,
-        "memo": "Testing populate transfer",
-        "tokenAmountRecipients": [],
-        "nftAmountRecipients": [],
-        "relayerFeeERC20AmountRecipient": {},
-        "sendWithPublicWallet": false,
-        "overallBatchMinGasPrice": "0x1000",
-        "gasDetails": {
-            "evmGasType": "Type2",
-            "gasEstimate": "0x1234",
-            "maxFeePerGas": "0x4567",
-            "maxPriorityFeePerGas": "0x89"
-        }
-    });
+//     // Assumes generate_transfer_proof was called already
+//     let payload = json!({
+//         "network": "Polygon",
+//         "walletId": "your_wallet_id",
+//         "showSenderAddressToRecipient": true,
+//         "memo": "Testing populate transfer",
+//         "tokenAmountRecipients": [],
+//         "nftAmountRecipients": [],
+//         "relayerFeeERC20AmountRecipient": {},
+//         "sendWithPublicWallet": false,
+//         "overallBatchMinGasPrice": "0x1000",
+//         "gasDetails": {
+//             "evmGasType": "Type2",
+//             "gasEstimate": "0x1234",
+//             "maxFeePerGas": "0x4567",
+//             "maxPriorityFeePerGas": "0x89"
+//         }
+//     });
 
-    let result = engine.populate_proved_transfer(payload).await?;
-    println!("Populated transaction: {:#?}", result);
+//     let result = engine.populate_proved_transfer(payload).await?;
+//     println!("Populated transaction: {:#?}", result);
 
-    assert!(result.get("transaction").is_some(), "Transaction field missing");
+//     assert!(result.get("transaction").is_some(), "Transaction field missing");
 
-    engine.close_engine().await?;
-    Ok(())
-}
+//     engine.close_engine().await?;
+//     Ok(())
+// }

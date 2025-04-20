@@ -3,6 +3,3 @@ import { PORT } from './config.js';
 app.listen(PORT, () => {
     console.log(`TS Engine API running on port ${PORT}`);
 });
-app.get('/health', (req, res) => {
-    res.send('OK');
-});

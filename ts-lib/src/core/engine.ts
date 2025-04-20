@@ -1,14 +1,8 @@
 import LevelDOWN from 'leveldown';
 import fs from 'fs';
-import {
-    ArtifactStore,
-    getEngine,
-    startDopEngine,
-    stopDopEngine,
-} from 'dop-wallet-stagging';
+import { ArtifactStore, getEngine, startDopEngine, stopDopEngine } from 'dop-wallet-v3';
 
-const ENGINE_TEST_DB = 'test.db';
-const db = new LevelDOWN(ENGINE_TEST_DB);
+
 
 const fileExists = async (path: string) => {
     try {
@@ -28,19 +22,35 @@ const artifactStore = new ArtifactStore(
     fileExists,
 );
 
-export const initEngine = (useNativeArtifacts = false) => {
-    console.log(`Initializing DOP engine with db: ${ENGINE_TEST_DB}`);
-    const shouldDebug = false;
-    startDopEngine(
-        'test engine',
+// core/engine.ts
+export const initEngine = async ({
+    engineName = 'DOP Engine',
+    dbPath = 'database/DOP.db',
+    shouldDebug = false,
+    useNativeArtifacts = false,
+    skipMerkletreeScans = false,
+}: {
+    engineName?: string;
+    dbPath?: string;
+    shouldDebug?: boolean;
+    useNativeArtifacts?: boolean;
+    skipMerkletreeScans?: boolean;
+}) => {
+    console.log(`[Engine Init] ${engineName} with DB: ${dbPath}`);
+    const db = new LevelDOWN(dbPath);
+
+    await startDopEngine(
+        engineName,
         db,
         shouldDebug,
         artifactStore,
         useNativeArtifacts,
-        false,
+        skipMerkletreeScans,
     );
-    console.log('DOP engine initialized');
+
+    console.log('[Engine Init] DOP engine initialized successfully.');
 };
+
 
 export const getEngineInstance = () => getEngine();
 
@@ -49,11 +59,9 @@ export const getEngineInstanceInfo = () => {
     if (!engine) return null;
     console.log('Engine instance:', engine);
     return {
-        merkletrees: engine.merkletrees,
         wallets: Object.keys(engine?.wallets || {}),
         deploymentBlocks: engine?.deploymentBlocks,
         dopSmartWalletContracts: engine?.dopSmartWalletContracts,
-        relayAdaptContracts: engine?.relayAdaptContracts,
     };
 };
 

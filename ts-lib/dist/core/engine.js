@@ -15,10 +15,10 @@ const artifactStore = new ArtifactStore(fs.promises.readFile, async (dir, path, 
     await fs.promises.writeFile(path, data);
 }, fileExists);
 // core/engine.ts
-export const initEngine = ({ engineName = 'DOP Engine', dbPath = 'database/DOP.db', shouldDebug = false, useNativeArtifacts = false, skipMerkletreeScans = false, }) => {
+export const initEngine = async ({ engineName = 'DOP Engine', dbPath = 'database/DOP.db', shouldDebug = false, useNativeArtifacts = false, skipMerkletreeScans = false, }) => {
     console.log(`[Engine Init] ${engineName} with DB: ${dbPath}`);
     const db = new LevelDOWN(dbPath);
-    startDopEngine(engineName, db, shouldDebug, artifactStore, useNativeArtifacts, skipMerkletreeScans);
+    await startDopEngine(engineName, db, shouldDebug, artifactStore, useNativeArtifacts, skipMerkletreeScans);
     console.log('[Engine Init] DOP engine initialized successfully.');
 };
 export const getEngineInstance = () => getEngine();

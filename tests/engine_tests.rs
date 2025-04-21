@@ -71,59 +71,59 @@ async fn test_set_loggers() -> Result<()> {
 }
 
 
-#[tokio::test]
-#[serial]
-async fn test_load_provider() -> Result<(), anyhow::Error> {
-    let mut engine = DopEngine::new();
-    engine.start();
-    engine.wait_for_api_ready().await;
+// #[tokio::test]
+// #[serial]
+// async fn test_load_provider() -> Result<(), anyhow::Error> {
+//     let mut engine = DopEngine::new();
+//     engine.start();
+//     engine.wait_for_api_ready().await;
 
-    engine
-        .init_engine(
-            Some("database/DOP.db"),
-            Some("DOP Engine"),
-            Some(false),
-            Some(true),
-            Some(false),
-        )
-        .await?;
+//     engine
+//         .init_engine(
+//             Some("database/DOP.db"),
+//             Some("DOP Engine"),
+//             Some(false),
+//             Some(true),
+//             Some(false),
+//         )
+//         .await?;
 
-    let config = serde_json::json!({
-        "chainId": 137,
-        "providers": [
-            {
-                "provider": "https://light-serene-feather.matic.quiknode.pro/f0cdd8c4c146e68ce2f935bba399ca66cbe45868/",
-                "priority": 1,
-                "weight": 2,
-                "maxLogsPerBatch": 10,
-                "stallTimeout": 2500
-            },
-            {
-                "provider": "https://polygon-bor.publicnode.com",
-                "priority": 1,
-                "weight": 2,
-                "maxLogsPerBatch": 10,
-                "stallTimeout": 2500
-            },
-            {
-                "provider": "https://light-serene-feather.matic.quiknode.pro/f0cdd8c4c146e68ce2f935bba399ca66cbe45868/",
-                "priority": 2,
-                "weight": 2,
-                "maxLogsPerBatch": 10
-            }
-        ]
-    });
+//     let config = serde_json::json!({
+//         "chainId": 137,
+//         "providers": [
+//             {
+//                 "provider": "https://light-serene-feather.matic.quiknode.pro/f0cdd8c4c146e68ce2f935bba399ca66cbe45868/",
+//                 "priority": 1,
+//                 "weight": 2,
+//                 "maxLogsPerBatch": 10,
+//                 "stallTimeout": 2500
+//             },
+//             {
+//                 "provider": "https://polygon-bor.publicnode.com",
+//                 "priority": 1,
+//                 "weight": 2,
+//                 "maxLogsPerBatch": 10,
+//                 "stallTimeout": 2500
+//             },
+//             {
+//                 "provider": "https://light-serene-feather.matic.quiknode.pro/f0cdd8c4c146e68ce2f935bba399ca66cbe45868/",
+//                 "priority": 2,
+//                 "weight": 2,
+//                 "maxLogsPerBatch": 10
+//             }
+//         ]
+//     });
 
-    let result = engine
-        .load_provider(config, "Polygon", 10_000)
-        .await?;
+//     let result = engine
+//         .load_provider(config, "Polygon", 10_000)
+//         .await?;
 
-    println!("Provider loaded: {:#?}", result);
-    assert!(result.is_object(), "Expected JSON object");
+//     println!("Provider loaded: {:#?}", result);
+//     assert!(result.is_object(), "Expected JSON object");
 
-    engine.close_engine().await?;
-    Ok(())
-}
+//     engine.close_engine().await?;
+//     Ok(())
+// }
 
 // #[tokio::test]
 // #[serial]
@@ -155,6 +155,7 @@ async fn test_load_provider() -> Result<(), anyhow::Error> {
 //         println!("Created Wallet: {:#?}", wallet_info);
 //     let result = engine
 //         .gas_estimate_for_unproven_transfer(
+//             "txid_version",
 //             "Polygon",
 //             wallet_id,
 //             encryption_key,

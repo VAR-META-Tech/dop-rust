@@ -1,7 +1,7 @@
 use dop::engine::DopEngine;
 use std::collections::HashMap;
 use serial_test::serial;
-
+use anyhow::Result;
 
 
 #[tokio::test]
@@ -88,6 +88,94 @@ async fn test_shareable_viewing_key_and_view_only_wallet() -> Result<(), anyhow:
         .await?;
 
     assert!(view_only_wallet.get("id").is_some(), "View-only wallet should have an ID");
+
+    engine.close_engine().await?;
+    Ok(())
+}
+
+#[tokio::test]
+#[serial]
+async fn test_get_wallet_mnemonic() -> Result<()> {
+    let mut engine = DopEngine::new();
+    engine.start();
+    engine.wait_for_api_ready().await;
+
+    engine.init_engine(
+        Some("database/test-mnemonic.db"),
+        Some("Mnemonic Engine"),
+        Some(false),
+        Some(true),
+        Some(false),
+    ).await?;
+
+    let mnemonic = engine.generate_mnemonic(Some(12)).await?;
+    let encryption_key = "0101010101010101010101010101010101010101010101010101010101010101";
+
+    let wallet_info = engine.create_wallet(&mnemonic, encryption_key, None).await?;
+    let id = wallet_info["id"].as_str().expect("Missing wallet ID");
+
+    let restored_mnemonic = engine.get_wallet_mnemonic(id,encryption_key).await?;
+    println!("Restored Mnemonic: {}", restored_mnemonic);
+    assert_eq!(mnemonic, restored_mnemonic, "Restored mnemonic does not match");
+
+    engine.close_engine().await?;
+    Ok(())
+}
+
+#[tokio::test]
+#[serial]
+async fn test_sign_with_wallet_viewing_key() -> Result<()> {
+    let mut engine = DopEngine::new();
+    engine.start();
+    engine.wait_for_api_ready().await;
+
+    engine.init_engine(
+        Some("database/test-sign.db"),
+        Some("Sign Engine"),
+        Some(false),
+        Some(true),
+        Some(false),
+    ).await?;
+
+    let mnemonic = engine.generate_mnemonic(Some(12)).await?;
+    let encryption_key = "0101010101010101010101010101010101010101010101010101010101010101";
+
+    let wallet_info = engine.create_wallet(&mnemonic, encryption_key, None).await?;
+    let id = wallet_info["id"].as_str().expect("Missing wallet ID");
+    println!("Wallet ID: {}", id);
+    let message = "Hello DOP!";
+    let signature = engine.sign_message_with_wallet(id, message).await?;
+
+    println!("Signature: {}", signature);
+    assert!(!signature.is_empty(), "Signature should not be empty");
+
+    engine.close_engine().await?;
+    Ok(())
+}
+
+#[tokio::test]
+#[serial]
+async fn test_load_wallet_by_id() -> Result<(), anyhow::Error> {
+    let mut engine = DopEngine::new();
+    engine.start();
+    engine.wait_for_api_ready().await;
+
+    engine.init_engine(
+        Some("database/test-load.db"),
+        Some("Load Engine"),
+        Some(false),
+        Some(true),
+        Some(false),
+    ).await?;
+
+    let mnemonic = engine.generate_mnemonic(Some(12)).await?;
+    let encryption_key = "0101010101010101010101010101010101010101010101010101010101010101";
+
+    let wallet_info = engine.create_wallet(&mnemonic, encryption_key, None).await?;
+    let id = wallet_info["id"].as_str().expect("Missing wallet ID");
+
+    let loaded_wallet = engine.load_wallet_by_id(encryption_key, id, false).await?;
+    assert_eq!(loaded_wallet["id"], id, "Loaded wallet ID mismatch");
 
     engine.close_engine().await?;
     Ok(())

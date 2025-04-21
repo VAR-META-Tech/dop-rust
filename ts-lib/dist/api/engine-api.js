@@ -4,10 +4,10 @@ import { gasEstimateForUnprovenTransfer, generateTransferProof, loadProvider, po
 // engine-api.ts
 export const engineRouter = express.Router();
 // api/engine-api.ts
-engineRouter.post('/init', (req, res) => {
+engineRouter.post('/init', async (req, res) => {
     const { engineName, dbPath, shouldDebug, useNativeArtifacts, skipMerkletreeScans, } = req.body;
     try {
-        initEngine({
+        await initEngine({
             engineName,
             dbPath,
             shouldDebug,

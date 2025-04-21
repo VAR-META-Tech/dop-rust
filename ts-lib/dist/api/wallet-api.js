@@ -1,6 +1,8 @@
 import express from 'express';
 import { createViewOnlyWallet, createWallet, generateMnemonic, getWalletById, getWalletShareableViewingKeyById } from '../core/wallet.js';
 import { extractWalletInfo } from '../utils/json.js';
+import { getWalletMnemonic, loadWalletByID, signWithWalletViewingKey } from 'dop-wallet-v3';
+import { toUtf8Bytes } from "ethers";
 export const walletRouter = express.Router();
 walletRouter.get('/mnemonic', (req, res) => {
     const words = parseInt(req.query.words);
@@ -44,5 +46,50 @@ walletRouter.post('/wallet/view-only', async (req, res) => {
     }
     catch (err) {
         res.status(500).send('Failed to create view-only wallet');
+    }
+});
+walletRouter.get('/wallet/:id/mnemonic', async (req, res) => {
+    const { id } = req.params;
+    const { encryptionKey } = req.query;
+    console.log(`id: ${id}`);
+    console.log(`Encryption key: ${encryptionKey}`);
+    try {
+        const mnemonic = await getWalletMnemonic(encryptionKey, id);
+        console.log(`Mnemonic for wallet ${id}:`, mnemonic);
+        res.json({ mnemonic });
+    }
+    catch (err) {
+        console.log(`Error retrieving mnemonic for wallet ${id}:`, err);
+        res.status(500).send('Failed to retrieve mnemonic');
+    }
+});
+walletRouter.post('/wallet/sign-message', async (req, res) => {
+    const { walletId, message } = req.body;
+    try {
+        if (typeof message !== 'string' || !message.length) {
+            res.status(400).send('Message must be a non-empty string');
+            return;
+        }
+        const hexMessage = "0x" + Buffer.from(toUtf8Bytes(message)).toString("hex");
+        console.log(`Hex message: ${hexMessage}`);
+        console.log(`Wallet ID: ${walletId}`);
+        const signature = await signWithWalletViewingKey(walletId, hexMessage);
+        console.log(`Signature: ${signature}`);
+        res.json({ signature });
+    }
+    catch (err) {
+        console.log(`Error signing message:`, err);
+        console.error("Failed to sign message:", err);
+        res.status(500).send('Failed to sign message');
+    }
+});
+walletRouter.post('/wallet/load', async (req, res) => {
+    const { encryptionKey, dopWalletID, isViewOnlyWallet } = req.body;
+    try {
+        const walletInfo = await loadWalletByID(encryptionKey, dopWalletID, isViewOnlyWallet);
+        res.json(walletInfo);
+    }
+    catch (err) {
+        res.status(500).send('Failed to load wallet');
     }
 });

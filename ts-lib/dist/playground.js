@@ -1,7 +1,6 @@
-import { EVMGasType, isDefined, NetworkName, NFTTokenType, } from "dop-sharedmodels-v3";
+import { EVMGasType, NetworkName, NFTTokenType, } from "dop-sharedmodels-v3";
 import { initEngine, closeEngine, } from "./core/engine.js";
-import { toUtf8Bytes } from "ethers";
-import { createDopWallet, loadProvider, signWithWalletViewingKey, } from "dop-wallet-v3";
+import { awaitWalletScan, createDopWallet, loadProvider, } from "dop-wallet-v3";
 export const MOCK_FALLBACK_PROVIDER_JSON_CONFIG = {
     chainId: 137,
     providers: [
@@ -119,20 +118,20 @@ const loadEngineProvider = async () => {
         });
         const dopWalletInfo = await createDopWallet(MOCK_DB_ENCRYPTION_KEY, MOCK_MNEMONIC, undefined // creationBlockNumbers
         );
-        if (!isDefined(dopWalletInfo)) {
-            throw new Error("Expected dopWalletInfo");
-        }
+        console.log("DOP Wallet Info:", dopWalletInfo);
+        const chain = { type: 0, id: 1 };
+        console.log("chain", chain);
+        console.log("walletId", dopWalletInfo.id);
         try {
-            const hexMessage = "0x" + Buffer.from(toUtf8Bytes("message")).toString("hex");
-            const signature = await signWithWalletViewingKey(dopWalletInfo.id, hexMessage);
-            console.log("Signature:", signature);
+            const res = await awaitWalletScan(dopWalletInfo.id, chain);
+            console.log("Scan Result:", res);
         }
-        catch (err) {
-            console.error("Failed to sign message:", err);
+        catch (scanErr) {
+            console.error("❌ Scan failed:", scanErr);
         }
     }
     catch (err) {
-        console.error("❌ Playground Error:", err);
+        console.error("❌ Engine initialization error:", err);
     }
     finally {
         await closeEngine();

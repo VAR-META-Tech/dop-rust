@@ -1,40 +1,44 @@
-mod engine;
-use engine::DopEngine;
+mod dop;
+use dop::DopClient;
 use std::collections::HashMap;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut engine = DopEngine::new();
-
+    let mut engine = DopClient::new();
     engine.start();
     engine.wait_for_api_ready().await;
 
-    // ✅ Initialize engine with dynamic config
     engine
         .init_engine(
-            Some("database/DOP.db"),          // db path
-            Some("Rust Init Engine"), // engine name
-            Some(false),              // shouldDebug
-            Some(false),              // useNativeArtifacts
-            Some(false),              // skipMerkletreeScans
+            Some("database/test-key-addr.db"),
+            Some("KeyAddr Engine"),
+            Some(false),
+            Some(true),
+            Some(false),
         )
         .await?;
-
-    // println!("Engine Status: {}", engine.engine_status().await?);
-    let info = engine.get_engine_info().await?;
-    assert!(info.get("wallets").is_some(), "Engine info should include wallets field");
 
     let mnemonic = engine.generate_mnemonic(Some(12)).await?;
     let encryption_key = "0101010101010101010101010101010101010101010101010101010101010101";
 
-    let wallet_info = engine.create_wallet(&mnemonic, encryption_key, None).await?;
+    let wallet_info = engine
+        .create_wallet(&mnemonic, encryption_key, None)
+        .await?;
     let id = wallet_info["id"].as_str().expect("Missing wallet ID");
-    println!("Wallet ID: {}", id);
-    let message = "Hello DOP!";
-    let signature = engine.sign_message_with_wallet(id, message).await?;
 
-    println!("Signature: {}", signature);
-    // ✅ Call close explicitly
+    // let private_key = engine.get_private_viewing_key(id).await?;
+    // println!("Private Key: {:?}", private_key);
+    // assert!(
+    //     !private_key.is_empty(),
+    //     "Private viewing key should not be empty"
+    // );
+
+    let dop_address = engine.get_dop_address(id).await?;
+    println!("DOP Address: {:?}", dop_address);
+
+    let address_data = engine.get_dop_wallet_address_data(&dop_address).await?;
+    println!("Address Data: {}", address_data);
+
     engine.close_engine().await?;
     Ok(())
 }

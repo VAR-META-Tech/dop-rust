@@ -14,8 +14,10 @@ import {
 import { createWallet, getWalletById } from "./core/wallet.js";
 import { FallbackProvider, Mnemonic, randomBytes, toUtf8Bytes } from "ethers";
 import {
+  awaitWalletScan,
   createDopWallet,
   fullWalletForID,
+  getDopWalletAddressData,
   getWalletMnemonic,
   loadProvider,
   signWithWalletViewingKey,
@@ -158,23 +160,20 @@ const loadEngineProvider = async () => {
       MOCK_MNEMONIC,
       undefined // creationBlockNumbers
     );
-    if (!isDefined(dopWalletInfo)) {
-      throw new Error("Expected dopWalletInfo");
-    }
+    console.log("DOP Wallet Info:", dopWalletInfo);
+
+    const chain = { type: 0, id: 1 };
+    console.log("chain", chain);
+    console.log("walletId", dopWalletInfo.id);
 
     try {
-      const hexMessage =
-        "0x" + Buffer.from(toUtf8Bytes("message")).toString("hex");
-      const signature = await signWithWalletViewingKey(
-        dopWalletInfo.id,
-        hexMessage
-      );
-      console.log("Signature:", signature);
-    } catch (err) {
-      console.error("Failed to sign message:", err);
+      const res = await awaitWalletScan(dopWalletInfo.id, chain);
+      console.log("Scan Result:", res);
+    } catch (scanErr) {
+      console.error("❌ Scan failed:", scanErr);
     }
   } catch (err) {
-    console.error("❌ Playground Error:", err);
+    console.error("❌ Engine initialization error:", err);
   } finally {
     await closeEngine();
     console.log("🛑 Engine closed.");

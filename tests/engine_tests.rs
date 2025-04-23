@@ -1,5 +1,5 @@
-use dop::engine::DopEngine;
 use anyhow::Result;
+use dop::dop::DopClient;
 use serde_json::json;
 use serial_test::serial;
 
@@ -9,7 +9,7 @@ use serial_test::serial;
 #[tokio::test]
 #[serial]
 async fn test_engine_lifecycle() -> Result<()> {
-    let mut engine = DopEngine::new();
+    let mut engine = DopClient::new();
 
     engine.start();
     engine.wait_for_api_ready().await;
@@ -23,7 +23,7 @@ async fn test_engine_lifecycle() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn test_engine_info() -> Result<(), anyhow::Error> {
-    let mut engine = DopEngine::new();
+    let mut engine = DopClient::new();
     engine.start();
     engine.wait_for_api_ready().await;
 
@@ -46,7 +46,7 @@ async fn test_engine_info() -> Result<(), anyhow::Error> {
 #[tokio::test]
 #[serial]
 async fn test_set_loggers() -> Result<()> {
-    let mut engine = DopEngine::new();
+    let mut engine = DopClient::new();
 
     engine.start();
     engine.wait_for_api_ready().await;

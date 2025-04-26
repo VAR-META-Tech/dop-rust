@@ -68,13 +68,9 @@ walletRouter.post("/wallet/load", async (req, res) => {
 });
 walletRouter.get("/wallet/:id/scan", async (req, res) => {
     const { id } = req.params;
-    console.log("ID:", id);
-    console.log("Query:", req.query);
     try {
         const chain = parseChain(req.query.chain);
-        console.log("Chain:", chain);
         const result = await awaitWalletScan(id, chain);
-        console.log("Result:", result);
         res.json({ result });
     }
     catch (err) {
@@ -203,7 +199,7 @@ walletRouter.get("/assert/dop-address", (req, res) => {
         res.sendStatus(204); // No content = valid
     }
     catch (err) {
-        res.status(400).send("Invalid ETH address format");
+        res.status(400).send("Invalid DOP address format");
     }
 });
 walletRouter.get("/wallet/:id", (req, res) => {

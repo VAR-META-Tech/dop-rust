@@ -109,13 +109,9 @@ walletRouter.post("/wallet/load", async (req, res) => {
 
 walletRouter.get("/wallet/:id/scan", async (req, res) => {
   const { id } = req.params;
-  console.log("ID:", id);
-  console.log("Query:", req.query);
   try {
     const chain = parseChain(req.query.chain);
-    console.log("Chain:", chain);
     const result = await awaitWalletScan(id, chain);
-    console.log("Result:", result);
     res.json({ result });
   } catch (err) {
     res.status(400).send("Invalid chain object or failed to scan wallet");

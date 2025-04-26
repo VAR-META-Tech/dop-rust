@@ -1,6 +1,7 @@
 import express from "express";
-import { initEngine, closeEngine, getEngineInstanceInfo, } from "../core/engine.js";
+import { initEngine, closeEngine, getEngineInstanceInfo, scanContractHistory, } from "../core/engine.js";
 import { gasEstimateForUnprovenTransfer, generateTransferProof, loadProvider, populateProvedTransfer, setLoggers, } from "dop-wallet-v3";
+import { parseChain } from "../utils/json.js";
 // engine-api.ts
 export const engineRouter = express.Router();
 // api/engine-api.ts
@@ -59,6 +60,7 @@ engineRouter.post("/set-loggers", (req, res) => {
 });
 engineRouter.post("/load-provider", async (req, res) => {
     const { config, network, pollingInterval } = req.body;
+    console.log("Loading provider with config:", config, "network:", network, "pollingInterval:", pollingInterval);
     try {
         const response = await loadProvider(config, network, pollingInterval);
         res.json(response);
@@ -99,5 +101,21 @@ engineRouter.post("/populate-transfer", async (req, res) => {
     catch (err) {
         console.error("populateProvedTransfer error:", err);
         res.status(500).send("Failed to populate proved transfer");
+    }
+});
+engineRouter.post("/scan-contract-history", async (req, res) => {
+    try {
+        const { chain, walletIdFilter } = req.body;
+        if (!chain) {
+            res.status(400).send("Missing chain");
+            return;
+        }
+        await scanContractHistory(parseChain(chain), walletIdFilter);
+        res.sendStatus(204);
+        console.log("Contract history scanned successfully");
+    }
+    catch (err) {
+        console.error("❌ Failed to scan contract history:", err);
+        res.status(500).send("Failed to scan contract history");
     }
 });

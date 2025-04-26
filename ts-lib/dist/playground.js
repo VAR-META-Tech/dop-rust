@@ -1,6 +1,6 @@
-import { EVMGasType, NetworkName, NFTTokenType, } from "dop-sharedmodels-v3";
+import { EVMGasType, NETWORK_CONFIG, NetworkName, NFTTokenType, } from "dop-sharedmodels-v3";
 import { initEngine, closeEngine, } from "./core/engine.js";
-import { awaitWalletScan, createDopWallet, loadProvider, } from "dop-wallet-v3";
+import { createDopWallet, loadProvider, rescanFullUTXOMerkletreesAndWallets, getEngine, } from "dop-wallet-v3";
 export const MOCK_FALLBACK_PROVIDER_JSON_CONFIG = {
     chainId: 137,
     providers: [
@@ -80,6 +80,25 @@ export const MOCK_TOKEN_FEE = {
     tokenAddress: MOCK_TOKEN_ADDRESS,
     amount: BigInt(0x0300),
 };
+const networkName = NetworkName.EthereumSepolia;
+export const MOCK_FALLBACK_PROVIDER_JSON_CONFIG_SEPOLIA = {
+    chainId: 11155111,
+    providers: [
+        {
+            provider: "https://sepolia.drpc.org",
+            priority: 3,
+            weight: 3,
+            maxLogsPerBatch: 2,
+            stallTimeout: 2500,
+        },
+        {
+            provider: "https://ethereum-sepolia-rpc.publicnode.com",
+            priority: 3,
+            weight: 2,
+            maxLogsPerBatch: 5,
+        },
+    ],
+};
 const overallBatchMinGasPrice = BigInt("0x1000");
 const loadEngineProvider = async () => {
     const ETH_PROVIDERS_JSON = {
@@ -123,8 +142,14 @@ const loadEngineProvider = async () => {
         console.log("chain", chain);
         console.log("walletId", dopWalletInfo.id);
         try {
-            const res = await awaitWalletScan(dopWalletInfo.id, chain);
-            console.log("Scan Result:", res);
+            await loadProvider(MOCK_FALLBACK_PROVIDER_JSON_CONFIG_SEPOLIA, networkName, 10000 // pollingInterval
+            );
+            const { chain } = NETWORK_CONFIG[networkName];
+            console.log("chain", chain);
+            const engine = getEngine();
+            await engine.scanContractHistory(chain, dopWalletInfo.id);
+            await rescanFullUTXOMerkletreesAndWallets(chain, dopWalletInfo.id);
+            console.log("Rescan completed successfully.");
         }
         catch (scanErr) {
             console.error("❌ Scan failed:", scanErr);

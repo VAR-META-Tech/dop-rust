@@ -1,6 +1,6 @@
-import LevelDOWN from 'leveldown';
-import fs from 'fs';
-import { ArtifactStore, getEngine, startDopEngine, stopDopEngine } from 'dop-wallet-v3';
+import LevelDOWN from "leveldown";
+import fs from "fs";
+import { ArtifactStore, getEngine, startDopEngine, stopDopEngine, } from "dop-wallet-v3";
 const fileExists = async (path) => {
     try {
         await fs.promises.access(path);
@@ -15,18 +15,18 @@ const artifactStore = new ArtifactStore(fs.promises.readFile, async (dir, path, 
     await fs.promises.writeFile(path, data);
 }, fileExists);
 // core/engine.ts
-export const initEngine = async ({ engineName = 'DOP Engine', dbPath = 'database/DOP.db', shouldDebug = false, useNativeArtifacts = false, skipMerkletreeScans = false, }) => {
+export const initEngine = async ({ engineName = "DOP Engine", dbPath = "database/DOP.db", shouldDebug = false, useNativeArtifacts = false, skipMerkletreeScans = false, }) => {
     console.log(`[Engine Init] ${engineName} with DB: ${dbPath}`);
     const db = new LevelDOWN(dbPath);
-    await startDopEngine(engineName, db, shouldDebug, artifactStore, useNativeArtifacts, skipMerkletreeScans);
-    console.log('[Engine Init] DOP engine initialized successfully.');
+    return await startDopEngine(engineName, db, shouldDebug, artifactStore, useNativeArtifacts, skipMerkletreeScans);
+    console.log("[Engine Init] DOP engine initialized successfully.");
 };
 export const getEngineInstance = () => getEngine();
 export const getEngineInstanceInfo = () => {
     const engine = getEngine();
     if (!engine)
         return null;
-    console.log('Engine instance:', engine);
+    console.log("Engine instance:", engine);
     return {
         wallets: Object.keys(engine?.wallets || {}),
         deploymentBlocks: engine?.deploymentBlocks,
@@ -36,3 +36,7 @@ export const getEngineInstanceInfo = () => {
 export const closeEngine = async () => {
     await stopDopEngine();
 };
+export async function scanContractHistory(chain, walletIdFilter) {
+    const engine = getEngine();
+    await engine.scanContractHistory(chain, walletIdFilter);
+}

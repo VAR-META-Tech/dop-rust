@@ -1,61 +1,44 @@
-mod engine;
-use engine::DopEngine;
+mod dop;
+use dop::DopClient;
 use std::collections::HashMap;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut engine = DopEngine::new();
-
+    let mut engine = DopClient::new();
     engine.start();
     engine.wait_for_api_ready().await;
 
-    // ✅ Initialize engine with dynamic config
     engine
         .init_engine(
-            Some("database/DOP.db"),          // db path
-            Some("Rust Init Engine"), // engine name
-            Some(false),              // shouldDebug
-            Some(false),              // useNativeArtifacts
-            Some(false),              // skipMerkletreeScans
+            Some("database/test-key-addr.db"),
+            Some("KeyAddr Engine"),
+            Some(false),
+            Some(true),
+            Some(false),
         )
         .await?;
 
-    // println!("Engine Status: {}", engine.engine_status().await?);
-    let info = engine.get_engine_info().await?;
-    assert!(info.get("wallets").is_some(), "Engine info should include wallets field");
-    // ✅ Generate a new mnemonic with 12 words
     let mnemonic = engine.generate_mnemonic(Some(12)).await?;
-    println!("Generated Mnemonic: {}", mnemonic);
+    let encryption_key = "0101010101010101010101010101010101010101010101010101010101010101";
 
-    let encryption_key =
-        "0101010101010101010101010101010101010101010101010101010101010101";
-
-    // ✅ Optional creation block numbers
-    let creation_block_numbers = Some(HashMap::from([
-        ("Ethereum", 0u64),
-        ("Polygon", 2u64),
-    ]));
-
-    // ✅ Create wallet
     let wallet_info = engine
-        .create_wallet(&mnemonic, encryption_key, creation_block_numbers)
+        .create_wallet(&mnemonic, encryption_key, None)
         .await?;
-    println!("Created Wallet: {:#?}", wallet_info);
+    let id = wallet_info["id"].as_str().expect("Missing wallet ID");
 
-    // ✅ Retrieve full wallet by ID
-    if let Some(id) = wallet_info.get("id").and_then(|v| v.as_str()) {
-        let wallet = engine.get_wallet(id).await?;
-        println!("Wallet Detail: {:#?}", wallet);
+    // let private_key = engine.get_private_viewing_key(id).await?;
+    // println!("Private Key: {:?}", private_key);
+    // assert!(
+    //     !private_key.is_empty(),
+    //     "Private viewing key should not be empty"
+    // );
 
-        let share_key = engine.get_shareable_viewing_key(id).await?;
-        let view_only = engine
-            .create_view_only_wallet(&encryption_key, &share_key, None)
-            .await?;
-        println!("🔐 View-Only Wallet: {:#?}", view_only);
-    }
-   
-    
-    // ✅ Call close explicitly
+    let dop_address = engine.get_dop_address(id).await?;
+    println!("DOP Address: {:?}", dop_address);
+
+    let address_data = engine.get_dop_wallet_address_data(&dop_address).await?;
+    println!("Address Data: {}", address_data);
+
     engine.close_engine().await?;
     Ok(())
 }

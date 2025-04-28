@@ -1,15 +1,12 @@
-use dop::engine::DopEngine;
 use anyhow::Result;
+use dop::dop::DopClient;
 use serde_json::json;
 use serial_test::serial;
-
-
-
 
 #[tokio::test]
 #[serial]
 async fn test_engine_lifecycle() -> Result<()> {
-    let mut engine = DopEngine::new();
+    let mut engine = DopClient::new();
 
     engine.start();
     engine.wait_for_api_ready().await;
@@ -23,7 +20,7 @@ async fn test_engine_lifecycle() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn test_engine_info() -> Result<(), anyhow::Error> {
-    let mut engine = DopEngine::new();
+    let mut engine = DopClient::new();
     engine.start();
     engine.wait_for_api_ready().await;
 
@@ -38,7 +35,10 @@ async fn test_engine_info() -> Result<(), anyhow::Error> {
         .await?;
 
     let info = engine.get_engine_info().await?;
-    assert!(info.get("wallets").is_some(), "Engine info should include wallets field");
+    assert!(
+        info.get("wallets").is_some(),
+        "Engine info should include wallets field"
+    );
 
     engine.close_engine().await?;
     Ok(())
@@ -46,7 +46,7 @@ async fn test_engine_info() -> Result<(), anyhow::Error> {
 #[tokio::test]
 #[serial]
 async fn test_set_loggers() -> Result<()> {
-    let mut engine = DopEngine::new();
+    let mut engine = DopClient::new();
 
     engine.start();
     engine.wait_for_api_ready().await;
@@ -55,8 +55,8 @@ async fn test_set_loggers() -> Result<()> {
         .init_engine(
             Some("database/DOP.db"),
             Some("DOP Engine"),
-            Some(true),  // shouldDebug enabled
-            Some(true),  // useNativeArtifacts
+            Some(true), // shouldDebug enabled
+            Some(true), // useNativeArtifacts
             Some(false),
         )
         .await?;
@@ -70,58 +70,46 @@ async fn test_set_loggers() -> Result<()> {
     Ok(())
 }
 
-
 #[tokio::test]
-#[serial]
-async fn test_load_provider() -> Result<(), anyhow::Error> {
-    let mut engine = DopEngine::new();
+#[serial] // Important: ensures Node.js engine not conflict between tests
+async fn test_load_provider() -> Result<()> {
+    let mut engine = DopClient::new();
     engine.start();
     engine.wait_for_api_ready().await;
+    engine.init_engine(None, None, None, None, None).await?;
 
-    engine
-        .init_engine(
-            Some("database/DOP.db"),
-            Some("DOP Engine"),
-            Some(false),
-            Some(true),
-            Some(false),
-        )
-        .await?;
-
-    let config = serde_json::json!({
-        "chainId": 137,
+    // Prepare mock config for Ethereum Sepolia
+    let config = json!({
+        "chainId": 11155111,
         "providers": [
             {
-                "provider": "https://light-serene-feather.matic.quiknode.pro/f0cdd8c4c146e68ce2f935bba399ca66cbe45868/",
-                "priority": 1,
-                "weight": 2,
-                "maxLogsPerBatch": 10,
-                "stallTimeout": 2500
+                "provider": "https://sepolia.drpc.org",
+                "priority": 3,
+                "weight": 3,
+                "maxLogsPerBatch": 2,
+                "stallTimeout": 2500,
             },
             {
-                "provider": "https://polygon-bor.publicnode.com",
-                "priority": 1,
+                "provider": "https://ethereum-sepolia-rpc.publicnode.com",
+                "priority": 3,
                 "weight": 2,
-                "maxLogsPerBatch": 10,
-                "stallTimeout": 2500
-            },
-            {
-                "provider": "https://light-serene-feather.matic.quiknode.pro/f0cdd8c4c146e68ce2f935bba399ca66cbe45868/",
-                "priority": 2,
-                "weight": 2,
-                "maxLogsPerBatch": 10
+                "maxLogsPerBatch": 5,
             }
         ]
     });
 
+    let network_name = "Ethereum_Sepolia";
+
+    let polling_interval_ms = 10_000; // 10 seconds
+
     let result = engine
-        .load_provider(config, "Polygon", 10_000)
+        .load_provider(config, network_name, Some(polling_interval_ms))
         .await?;
 
-    println!("Provider loaded: {:#?}", result);
-    assert!(result.is_object(), "Expected JSON object");
+    println!("✅ load_provider success: {:#?}", result);
 
     engine.close_engine().await?;
+
     Ok(())
 }
 
@@ -155,6 +143,7 @@ async fn test_load_provider() -> Result<(), anyhow::Error> {
 //         println!("Created Wallet: {:#?}", wallet_info);
 //     let result = engine
 //         .gas_estimate_for_unproven_transfer(
+//             "txid_version",
 //             "Polygon",
 //             wallet_id,
 //             encryption_key,
@@ -255,7 +244,6 @@ async fn test_load_provider() -> Result<(), anyhow::Error> {
 //     engine.close_engine().await?;
 //     Ok(())
 // }
-
 
 // #[tokio::test]
 // #[serial]

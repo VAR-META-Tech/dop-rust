@@ -2,6 +2,7 @@ import express from 'express';
 import { engineRouter } from './engine-api.js';
 import { walletRouter } from './wallet-api.js';
 import { balanceRouter } from './balance-api.js';
+import { callbackRouter } from './callback.js';
 
 export const app = express();
 
@@ -16,3 +17,4 @@ app.get('/health', (req, res) => {
 app.use(engineRouter);
 app.use(walletRouter);
 app.use(balanceRouter);
+app.use(callbackRouter);

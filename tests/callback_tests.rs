@@ -1,30 +1,46 @@
-mod dop;
-use dop::DopClient;
+use dop::dop::DopClient;
 use serde_json::json;
-use std::{collections::HashMap, ffi::c_long};
+use serial_test::serial;
+use std::sync::{Arc, Mutex};
+use tokio::time::{Duration, sleep};
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+#[tokio::test]
+#[serial]
+async fn test_scan_callbacks_triggered() -> Result<(), Box<dyn std::error::Error>> {
+    // Initialize the DopClient
     let mut engine = DopClient::new();
     engine.start();
     engine.wait_for_api_ready().await;
     engine.init_engine(None, None, None, None, None).await?;
 
-    engine.set_utxo_scan_callback(|event| {
-        println!("🛠️ [Rust] UTXO scan event: {:?}", event);
+    // Shared flags to track callback invocations
+
+    engine.set_utxo_scan_callback(move |_event| {
+        println!("🛠️ [Rust] UTXO scan event: {:?}", _event);
     });
 
-    engine.set_txid_scan_callback(|event| {
-        println!("🛠️ [Rust] TXID scan event: {:?}", event);
+    // Set TXID scan callback
+    engine.set_txid_scan_callback(move |_event| {
+        println!("🛠️ [Rust] txidTXO scan event: {:?}", _event);
     });
+    let chain = json!({
+        "type": 0, // EVM
+        "id": 11155111, // Sepolia
+    });
+    engine.reset_full_txid_merkletrees_v2(chain.clone()).await?;
+    println!("✅ reset_full_txid_merkletrees_v2 success");
 
+    // Start the scan listeners
     engine.start_scan_listeners().await?;
     println!("✅ Scan listeners started");
+
+    // Define the chain configuration
     let chain = json!({
         "type": 0, // EVM
         "id": 11155111, // Sepolia
     });
 
+    // Load Sepolia providers
     let fallback_providers = json!({
         "chainId": 11155111,
         "providers": [
@@ -43,7 +59,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         ]
     });
-    let polling_interval = 10_000; // 1 minute
+    let polling_interval = 10_000; // 10 seconds
     engine
         .load_provider(
             fallback_providers,
@@ -53,9 +69,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
     println!("✅ Provider loaded");
 
+    // Trigger scan_contract_history
     engine.scan_contract_history(chain.clone(), None).await?;
-    println!("✅ scan_contract_history success");
+    println!("✅ scan_contract_history invoked");
 
+    // Allow some time for the callbacks to be invoked
+    sleep(Duration::from_secs(5)).await;
+
+    // Clean up
     engine.close_engine().await?;
     Ok(())
 }

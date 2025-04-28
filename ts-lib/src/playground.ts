@@ -4,6 +4,8 @@ import {
   EVMGasType,
   FallbackProviderJsonConfig,
   isDefined,
+  MerkletreeScanStatus,
+  MerkletreeScanUpdateEvent,
   NETWORK_CONFIG,
   NetworkName,
   NFTTokenType,
@@ -28,6 +30,8 @@ import {
   rescanFullUTXOMerkletreesAndWallets,
   resetFullTXIDMerkletreesV2,
   getEngine,
+  setOnUTXOMerkletreeScanCallback,
+  setOnTXIDMerkletreeScanCallback,
 } from "dop-wallet-v3";
 export const MOCK_FALLBACK_PROVIDER_JSON_CONFIG = {
   chainId: 137,
@@ -170,7 +174,34 @@ const loadEngineProvider = async () => {
     console.error("❌ Failed to load provider:", err);
   }
 };
+declare type Optional<T> = T | undefined;
+let currentUTXOMerkletreeScanStatus: Optional<MerkletreeScanStatus>;
+let currentTXIDMerkletreeScanStatus: Optional<MerkletreeScanStatus>;
 
+export const utxoMerkletreeHistoryScanCallback = (
+  scanData: MerkletreeScanUpdateEvent
+): void => {
+  console.log("UTXOMerkletree scan data:", scanData);
+  currentUTXOMerkletreeScanStatus = scanData.scanStatus;
+};
+
+export const txidMerkletreeHistoryScanCallback = (
+  scanData: MerkletreeScanUpdateEvent
+): void => {
+  console.log("TXIDMerkletree scan data:", scanData);
+  currentTXIDMerkletreeScanStatus = scanData.scanStatus;
+};
+
+import { TXIDVersion } from "dop-engine-v3";
+
+export const isV2Test = (): boolean => {
+  return process.env.V2_TEST === "1";
+};
+
+export const getTestTXIDVersion = () => {
+  return TXIDVersion.V3_PoseidonMerkle;
+};
+const txidVersion = getTestTXIDVersion();
 (async () => {
   console.log("🔧 Initializing DOP Engine...");
   try {
@@ -190,20 +221,26 @@ const loadEngineProvider = async () => {
     console.log("DOP Wallet Info:", dopWalletInfo);
 
     const chain = { type: 0, id: 1 };
-    console.log("chain", chain);
-    console.log("walletId", dopWalletInfo.id);
 
     try {
+      setOnUTXOMerkletreeScanCallback(utxoMerkletreeHistoryScanCallback);
+      setOnTXIDMerkletreeScanCallback(txidMerkletreeHistoryScanCallback);
+
+      const { chain } = NETWORK_CONFIG[networkName];
+      console.log("chain", chain);
+      await resetFullTXIDMerkletreesV2(chain);
       await loadProvider(
         MOCK_FALLBACK_PROVIDER_JSON_CONFIG_SEPOLIA,
         networkName,
         10_000 // pollingInterval
       );
-      const { chain } = NETWORK_CONFIG[networkName];
-      console.log("chain", chain);
       const engine = getEngine();
+      engine.getTXIDMerkletree(txidVersion, chain);
       await engine.scanContractHistory(chain, dopWalletInfo.id);
+      await resetFullTXIDMerkletreesV2(chain);
+
       await rescanFullUTXOMerkletreesAndWallets(chain, dopWalletInfo.id);
+
       console.log("Rescan completed successfully.");
     } catch (scanErr) {
       console.error("❌ Scan failed:", scanErr);

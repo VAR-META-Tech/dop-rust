@@ -1,10 +1,39 @@
-use std::process::{Child, Command};
 use reqwest::Client;
+use serde::Deserialize;
+use std::{
+    process::{Child, Command},
+    sync::{Arc, Mutex},
+};
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct Chain {
+    #[serde(rename = "type")]
+    pub chain_type: u8,
+    pub id: u64,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct MerkletreeScanUpdateEvent {
+    #[serde(rename = "scanStatus")]
+    pub scan_status: String,
+    pub chain: Chain,
+    pub progress: f64,
+}
+
+pub enum ScanType {
+    UTXOMerkletree,
+    TXIDMerkletree,
+}
 
 pub struct DopClient {
     pub(crate) child: Option<Child>,
     pub(crate) client: Client,
     pub(crate) port: u16,
+
+    pub(crate) utxo_scan_callback:
+        Arc<Mutex<Option<Box<dyn Fn(MerkletreeScanUpdateEvent) + Send + 'static>>>>,
+    pub(crate) txid_scan_callback:
+        Arc<Mutex<Option<Box<dyn Fn(MerkletreeScanUpdateEvent) + Send + 'static>>>>,
 }
 
 impl DopClient {
@@ -17,6 +46,8 @@ impl DopClient {
             child: None,
             client: Client::new(),
             port,
+            utxo_scan_callback: Arc::new(Mutex::new(None)),
+            txid_scan_callback: Arc::new(Mutex::new(None)),
         }
     }
 

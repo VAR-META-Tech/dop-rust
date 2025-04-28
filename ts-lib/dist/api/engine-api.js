@@ -63,6 +63,7 @@ engineRouter.post("/load-provider", async (req, res) => {
     console.log("Loading provider with config:", config, "network:", network, "pollingInterval:", pollingInterval);
     try {
         const response = await loadProvider(config, network, pollingInterval);
+        console.log("Provider loaded successfully:", response);
         res.json(response);
     }
     catch (err) {

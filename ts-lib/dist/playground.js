@@ -1,6 +1,6 @@
 import { EVMGasType, NETWORK_CONFIG, NetworkName, NFTTokenType, } from "dop-sharedmodels-v3";
 import { initEngine, closeEngine, } from "./core/engine.js";
-import { createDopWallet, loadProvider, rescanFullUTXOMerkletreesAndWallets, getEngine, } from "dop-wallet-v3";
+import { createDopWallet, loadProvider, getEngine, setOnUTXOMerkletreeScanCallback, } from "dop-wallet-v3";
 export const MOCK_FALLBACK_PROVIDER_JSON_CONFIG = {
     chainId: 137,
     providers: [
@@ -125,6 +125,11 @@ const loadEngineProvider = async () => {
         console.error("❌ Failed to load provider:", err);
     }
 };
+let currentUTXOMerkletreeScanStatus;
+export const utxoMerkletreeHistoryScanCallback = (scanData) => {
+    console.log("UTXOMerkletree scan data:", scanData);
+    currentUTXOMerkletreeScanStatus = scanData.scanStatus;
+};
 (async () => {
     console.log("🔧 Initializing DOP Engine...");
     try {
@@ -139,16 +144,16 @@ const loadEngineProvider = async () => {
         );
         console.log("DOP Wallet Info:", dopWalletInfo);
         const chain = { type: 0, id: 1 };
-        console.log("chain", chain);
-        console.log("walletId", dopWalletInfo.id);
         try {
+            setOnUTXOMerkletreeScanCallback(utxoMerkletreeHistoryScanCallback);
             await loadProvider(MOCK_FALLBACK_PROVIDER_JSON_CONFIG_SEPOLIA, networkName, 10000 // pollingInterval
             );
             const { chain } = NETWORK_CONFIG[networkName];
             console.log("chain", chain);
             const engine = getEngine();
             await engine.scanContractHistory(chain, dopWalletInfo.id);
-            await rescanFullUTXOMerkletreesAndWallets(chain, dopWalletInfo.id);
+            // await resetFullTXIDMerkletreesV2(chain);
+            // await rescanFullUTXOMerkletreesAndWallets(chain, dopWalletInfo.id);
             console.log("Rescan completed successfully.");
         }
         catch (scanErr) {

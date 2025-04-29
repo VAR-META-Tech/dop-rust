@@ -345,7 +345,6 @@ async fn test_validate_addresses() -> Result<()> {
 }
 
 //the scan functions run forever in ts
-
 // #[tokio::test]
 // #[serial]
 // async fn test_wallet_scan() -> Result<()> {

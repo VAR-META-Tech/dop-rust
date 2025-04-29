@@ -2,14 +2,15 @@ mod balances;
 mod callback;
 mod client;
 mod engine;
+mod transaction;
 mod transfer;
 mod utils;
 mod wallet;
-
 pub use balances::*;
 pub use callback::*;
 pub use client::*;
 pub use engine::*;
+pub use transaction::*;
 pub use transfer::*;
 pub use utils::*;
 pub use wallet::*;

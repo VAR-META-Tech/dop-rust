@@ -1,6 +1,8 @@
 import {
   Chain,
   ChainType,
+  DopERC20Amount,
+  DopTransactionGasEstimateResponse,
   EVMGasType,
   FallbackProviderJsonConfig,
   isDefined,
@@ -17,7 +19,14 @@ import {
   getEngineInstanceInfo,
 } from "./core/engine.js";
 import { createWallet, getWalletById } from "./core/wallet.js";
-import { FallbackProvider, Mnemonic, randomBytes, toUtf8Bytes } from "ethers";
+import {
+  ContractTransaction,
+  FallbackProvider,
+  Mnemonic,
+  Network,
+  randomBytes,
+  toUtf8Bytes,
+} from "ethers";
 import {
   awaitWalletScan,
   createDopWallet,
@@ -32,6 +41,11 @@ import {
   getEngine,
   setOnUTXOMerkletreeScanCallback,
   setOnTXIDMerkletreeScanCallback,
+  assertValidDopAddress,
+  assertNotBlockedAddress,
+  gasEstimateResponse,
+  getGasEstimate,
+  gasEstimateForEncryptBaseToken,
 } from "dop-wallet-v3";
 export const MOCK_FALLBACK_PROVIDER_JSON_CONFIG = {
   chainId: 137,
@@ -145,6 +159,8 @@ export const MOCK_FALLBACK_PROVIDER_JSON_CONFIG_SEPOLIA: FallbackProviderJsonCon
       },
     ],
   };
+export const MOCK_ETH_WALLET_ADDRESS =
+  "0x9E9F988356f46744Ee0374A17a5Fa1a3A3cC3777";
 const overallBatchMinGasPrice = BigInt("0x1000");
 const loadEngineProvider = async () => {
   const ETH_PROVIDERS_JSON: FallbackProviderJsonConfig = {
@@ -192,15 +208,117 @@ export const txidMerkletreeHistoryScanCallback = (
   currentTXIDMerkletreeScanStatus = scanData.scanStatus;
 };
 
-import { TXIDVersion } from "dop-engine-v3";
+import {
+  ByteUtils,
+  DopEngine,
+  EncryptNoteERC20,
+  RelayAdaptVersionedSmartContracts,
+  TXIDVersion,
+} from "dop-engine-v3";
 
 export const isV2Test = (): boolean => {
   return process.env.V2_TEST === "1";
 };
 
 export const getTestTXIDVersion = () => {
+  if (isV2Test()) {
+    return TXIDVersion.V2_PoseidonMerkle;
+  }
   return TXIDVersion.V3_PoseidonMerkle;
 };
+
+export const initTestEngineNetworks = async (
+  networkName = NetworkName.EthereumSepolia,
+  mockConfig = MOCK_FALLBACK_PROVIDER_JSON_CONFIG_SEPOLIA
+) => {
+  // Don't wait for async. It will try to load historical events, which takes a while.
+  await loadProvider(
+    mockConfig,
+    networkName,
+    10_000 // pollingInterval
+  );
+  const { chain } = NETWORK_CONFIG[networkName];
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  getEngine().scanContractHistory(
+    chain,
+    undefined // walletIdFilter
+  );
+};
+// const generateEncryptBaseTokenTransaction = async (
+//   txidVersion: TXIDVersion,
+//   networkName: NetworkName,
+//   dopAddress: string,
+//   encryptPrivateKey: string,
+//   wrappedERC20Amount: DopERC20Amount,
+//   fromWalletAddress: string
+// ): Promise<any> => {
+//   try {
+//     const { masterPublicKey, viewingPublicKey } =
+//       DopEngine.decodeAddress(dopAddress);
+//     const random = ByteUtils.randomHex(16);
+
+//     const { amount, tokenAddress } = wrappedERC20Amount;
+
+//     const encrypt = new EncryptNoteERC20(
+//       masterPublicKey,
+//       random,
+//       amount,
+//       tokenAddress
+//     );
+
+//     const encryptRequest = await encrypt.serialize(
+//       ByteUtils.hexToBytes(encryptPrivateKey),
+//       viewingPublicKey
+//     );
+
+//     const { chain } = NETWORK_CONFIG[networkName];
+//     console.log("Chain:", chain);
+//     console.log(txidVersion);
+//     const transaction =
+//       await RelayAdaptVersionedSmartContracts.populateEncryptBaseToken(
+//         txidVersion,
+//         chain,
+//         encryptRequest,
+//         fromWalletAddress
+//       );
+
+//     return transaction;
+//   } catch (err) {
+//     console.error("❌1 generateEncryptBaseTokenTransaction:", err);
+//   }
+// };
+// export const gasEstimateForEncryptBaseToken = async (
+//   txidVersion: TXIDVersion,
+//   networkName: NetworkName,
+//   dopAddress: string,
+//   encryptPrivateKey: string,
+//   wrappedERC20Amount: DopERC20Amount,
+//   fromWalletAddress: string
+// ): Promise<any> => {
+//   try {
+//     assertValidDopAddress(dopAddress);
+//     assertNotBlockedAddress(fromWalletAddress);
+
+//     const transaction = await generateEncryptBaseTokenTransaction(
+//       txidVersion,
+//       networkName,
+//       dopAddress,
+//       encryptPrivateKey,
+//       wrappedERC20Amount,
+//       fromWalletAddress
+//     );
+//     console.log("Transaction:", transaction);
+//     const sendWithPublicWallet = true;
+//     const isGasEstimateWithDummyProof = false;
+//     return gasEstimateResponse(
+//       200n,
+//       undefined, // broadcasterFeeCommitment
+//       isGasEstimateWithDummyProof
+//     );
+//   } catch (err) {
+//     console.log("❌ gasEstimateForEncryptBaseToken error:", err);
+//   }
+// };
 const txidVersion = getTestTXIDVersion();
 (async () => {
   console.log("🔧 Initializing DOP Engine...");
@@ -212,7 +330,8 @@ const txidVersion = getTestTXIDVersion();
       useNativeArtifacts: true,
       skipMerkletreeScans: false,
     });
-
+    await initTestEngineNetworks();
+    console.log("🔧 DOP Engine initialized successfully.");
     const dopWalletInfo = await createDopWallet(
       MOCK_DB_ENCRYPTION_KEY,
       MOCK_MNEMONIC,
@@ -223,25 +342,17 @@ const txidVersion = getTestTXIDVersion();
     const chain = { type: 0, id: 1 };
 
     try {
-      setOnUTXOMerkletreeScanCallback(utxoMerkletreeHistoryScanCallback);
-      setOnTXIDMerkletreeScanCallback(txidMerkletreeHistoryScanCallback);
-
-      const { chain } = NETWORK_CONFIG[networkName];
-      console.log("chain", chain);
-      await resetFullTXIDMerkletreesV2(chain);
-      await loadProvider(
-        MOCK_FALLBACK_PROVIDER_JSON_CONFIG_SEPOLIA,
-        networkName,
-        10_000 // pollingInterval
+      const encryptPrivateKey = ByteUtils.randomHex(32);
+      console.log(txidVersion);
+      const rsp = await gasEstimateForEncryptBaseToken(
+        txidVersion,
+        NetworkName.Polygon,
+        dopWalletInfo.dopAddress,
+        encryptPrivateKey,
+        MOCK_TOKEN_AMOUNTS[0],
+        MOCK_ETH_WALLET_ADDRESS
       );
-      const engine = getEngine();
-      engine.getTXIDMerkletree(txidVersion, chain);
-      await engine.scanContractHistory(chain, dopWalletInfo.id);
-      await resetFullTXIDMerkletreesV2(chain);
-
-      await rescanFullUTXOMerkletreesAndWallets(chain, dopWalletInfo.id);
-
-      console.log("Rescan completed successfully.");
+      console.log("Gas estimate response:", rsp);
     } catch (scanErr) {
       console.error("❌ Scan failed:", scanErr);
     }

@@ -76,6 +76,7 @@ async fn test_scan_callbacks_triggered() -> Result<(), Box<dyn std::error::Error
     // Allow some time for the callbacks to be invoked
     sleep(Duration::from_secs(5)).await;
 
+
     // Clean up
     engine.close_engine().await?;
     Ok(())

@@ -9,7 +9,7 @@ import {
 } from "dop-wallet-v3";
 import { parseChain } from "../utils/json.js"; // your helper
 
-export const transactionRouter = express.Router();
+export const txEncyptRouter = express.Router();
 
 // Helper to safely JSON BigInt responses
 function safeJsonResponse(res: express.Response, data: any) {
@@ -22,7 +22,7 @@ function safeJsonResponse(res: express.Response, data: any) {
 }
 
 // POST /wallet/gas-estimate-for-encrypt-base-token
-transactionRouter.post(
+txEncyptRouter.post(
   "/gas-estimate-for-encrypt-base-token",
   async (req, res) => {
     console.log("Estimating gas for encrypt base token...");
@@ -68,7 +68,7 @@ transactionRouter.post(
 );
 
 // POST /wallet/populate-encrypt-base-token
-transactionRouter.post("/populate-encrypt-base-token", async (req, res) => {
+txEncyptRouter.post("/populate-encrypt-base-token", async (req, res) => {
   try {
     const {
       txidVersion,
@@ -111,7 +111,7 @@ transactionRouter.post("/populate-encrypt-base-token", async (req, res) => {
 });
 
 // POST /wallet/get-encrypt-private-key-signature-message
-transactionRouter.post(
+txEncyptRouter.post(
   "/get-encrypt-private-key-signature-message",
   async (_req, res) => {
     try {
@@ -128,7 +128,7 @@ transactionRouter.post(
 );
 
 // POST /wallet/generate-encrypt-transaction
-transactionRouter.post("/generate-encrypt-transaction", async (req, res) => {
+txEncyptRouter.post("/generate-encrypt-transaction", async (req, res) => {
   try {
     const {
       txidVersion,
@@ -160,7 +160,7 @@ transactionRouter.post("/generate-encrypt-transaction", async (req, res) => {
 });
 
 // POST /wallet/populate-encrypt
-transactionRouter.post("/populate-encrypt", async (req, res) => {
+txEncyptRouter.post("/populate-encrypt", async (req, res) => {
   try {
     const {
       txidVersion,
@@ -194,7 +194,7 @@ transactionRouter.post("/populate-encrypt", async (req, res) => {
 });
 
 // POST /wallet/gas-estimate-for-encrypt
-transactionRouter.post("/gas-estimate-for-encrypt", async (req, res) => {
+txEncyptRouter.post("/gas-estimate-for-encrypt", async (req, res) => {
   try {
     const {
       txidVersion,

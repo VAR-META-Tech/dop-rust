@@ -1,6 +1,6 @@
 import express from "express";
 import { initEngine, closeEngine, getEngineInstanceInfo, scanContractHistory, } from "../core/engine.js";
-import { gasEstimateForUnprovenTransfer, generateTransferProof, loadProvider, populateProvedTransfer, setLoggers, } from "dop-wallet-v3";
+import { loadProvider, setLoggers, } from "dop-wallet-v3";
 import { parseChain } from "../utils/json.js";
 // engine-api.ts
 export const engineRouter = express.Router();
@@ -69,39 +69,6 @@ engineRouter.post("/load-provider", async (req, res) => {
     catch (err) {
         console.error("Failed to load provider:", err);
         res.status(500).send("Failed to load provider");
-    }
-});
-engineRouter.post("/gas-estimate-unproven", async (req, res) => {
-    try {
-        console.log("Gas estimate request:", req.body);
-        const result = await gasEstimateForUnprovenTransfer(req.body.txidVersion, req.body.network, req.body.walletId, req.body.encryptionKey, req.body.memoText, req.body.erc20AmountRecipients, req.body.nftAmountRecipients, req.body.transactionGasDetailsSerialized, req.body.feeTokenDetails, req.body.sendWithPublicWallet);
-        res.json(result);
-    }
-    catch (err) {
-        console.error("Failed to estimate gas:", err);
-        res.status(500).send("Gas estimation failed");
-    }
-});
-engineRouter.post("/generate-transfer-proof", async (req, res) => {
-    try {
-        const result = await generateTransferProof(req.body.txidVersion, req.body.network, req.body.walletId, req.body.encryptionKey, req.body.showSenderAddressToRecipient, req.body.memo, req.body.erc20AmountRecipients, req.body.nftAmountRecipients, req.body.broadcasterFeeERC20AmountRecipient, req.body.sendWithPublicWallet, req.body.overallBatchMinGasPrice, () => { });
-        res.json(result);
-    }
-    catch (err) {
-        console.error("generateTransferProof failed:", err);
-        res.status(500).send("Failed to generate transfer proof");
-    }
-});
-engineRouter.post("/populate-transfer", async (req, res) => {
-    const { txidVersion, network, walletId, showSenderAddressToRecipient, memo, tokenAmountRecipients, nftAmountRecipients, relayerFeeERC20AmountRecipient, sendWithPublicWallet, overallBatchMinGasPrice, gasDetails, } = req.body;
-    console.log("Populate transfer request:", req.body);
-    try {
-        const tx = await populateProvedTransfer(txidVersion, network, walletId, showSenderAddressToRecipient, memo, tokenAmountRecipients, nftAmountRecipients, relayerFeeERC20AmountRecipient, sendWithPublicWallet, BigInt(overallBatchMinGasPrice), gasDetails);
-        res.json(tx);
-    }
-    catch (err) {
-        console.error("populateProvedTransfer error:", err);
-        res.status(500).send("Failed to populate proved transfer");
     }
 });
 engineRouter.post("/scan-contract-history", async (req, res) => {

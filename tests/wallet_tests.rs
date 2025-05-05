@@ -344,39 +344,6 @@ async fn test_validate_addresses() -> Result<()> {
     Ok(())
 }
 
-//the scan functions run forever in ts
-// #[tokio::test]
-// #[serial]
-// async fn test_wallet_scan() -> Result<()> {
-//     let mut engine = DopClient::new();
-//     engine.start();
-//     engine.wait_for_api_ready().await;
-
-//     engine
-//         .init_engine(
-//             Some("database/test-scan.db"),
-//             Some("Scan Engine"),
-//             Some(false),
-//             Some(true),
-//             Some(false),
-//         )
-//         .await?;
-
-//     let mnemonic = engine.generate_mnemonic(Some(12)).await?;
-//     let encryption_key = "0101010101010101010101010101010101010101010101010101010101010101";
-
-//     let wallet_info = engine
-//         .create_wallet(&mnemonic, encryption_key, None)
-//         .await?;
-//     let id = wallet_info["id"].as_str().expect("Missing wallet ID");
-
-//     let chain = json!({ "type": 0, "id": 1 });
-//     let _ = engine.scan_wallet(id, chain.clone()).await?;
-//     engine.scan_wallet_multiple(id, chain, 2).await?;
-
-//     engine.close_engine().await?;
-//     Ok(())
-// }
 #[tokio::test]
 #[serial]
 async fn test_assert_eth_address() -> Result<()> {

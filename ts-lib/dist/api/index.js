@@ -5,6 +5,7 @@ import { balanceRouter } from "./balance-api.js";
 import { callbackRouter } from "./callback.js";
 import { txEncyptRouter } from "./tx-encrypt-api.js";
 import { txTransferRouter } from "./tx-transfer.js";
+import { txDecryptRouter } from "./tx-decrypt.js";
 export const app = express();
 app.use(express.json());
 app.get("/health", (req, res) => {
@@ -17,3 +18,4 @@ app.use(balanceRouter);
 app.use(callbackRouter);
 app.use(txEncyptRouter);
 app.use(txTransferRouter);
+app.use(txDecryptRouter);

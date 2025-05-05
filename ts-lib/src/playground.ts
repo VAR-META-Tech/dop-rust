@@ -46,6 +46,7 @@ import {
   gasEstimateResponse,
   getGasEstimate,
   gasEstimateForEncryptBaseToken,
+  gasEstimateForUnprovenDecrypt,
 } from "dop-wallet-v3";
 export const MOCK_FALLBACK_PROVIDER_JSON_CONFIG = {
   chainId: 137,

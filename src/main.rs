@@ -58,23 +58,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     engine.scan_contract_history(chain.clone(), None).await?;
     println!("✅ scan_contract_history success");
 
-    let estimate = engine
-        .gas_estimate_for_encrypt_base_token(
-            "V2_PoseidonMerkle".to_string(),
-            "Ethereum_Sepolia".to_string(),
-            dop_address.to_string(),
-            "e4f9d8a6eaa57db1f82b9bbebd22e67468221b76df2ef7d8377ef2b9e8d6e74d".to_string(),
-            DopERC20Amount {
-                token_address: "0x5FbDB2315678afecb367f032d93F642f64180aa3".to_string(),
-                amount: "1000".to_string(),
-            },
-            "0x9E9F988356f46744Ee0374A17a5Fa1a3A3cC3777".to_string(),
-        )
-        .await
-        .expect("Gas estimate failed");
-
-    println!("Gas Estimate: {:?}", estimate.gas_estimate);
-
     engine.close_engine().await?;
     Ok(())
 }

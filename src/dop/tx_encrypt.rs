@@ -2,13 +2,6 @@ use super::DopClient;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DopERC20Amount {
-    #[serde(rename = "tokenAddress")]
-    pub token_address: String,
-    pub amount: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DopERC20AmountRecipient {
     #[serde(rename = "tokenAddress")]
     pub token_address: String,
@@ -44,6 +37,49 @@ pub struct ContractTransaction {
 pub struct DopPopulateTransactionResponse {
     pub transaction: ContractTransaction,
     pub nullifiers: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "evmGasType")]
+pub enum TransactionGasDetails {
+    #[serde(rename = "0")]
+    Type0 {
+        #[serde(rename = "gasEstimate")]
+        gas_estimate: String,
+        #[serde(rename = "gasPrice")]
+        gas_price: String,
+    },
+    #[serde(rename = "1")]
+    Type1 {
+        #[serde(rename = "gasEstimate")]
+        gas_estimate: String,
+        #[serde(rename = "gasPrice")]
+        gas_price: String,
+    },
+    #[serde(rename = "2")]
+    Type2 {
+        #[serde(rename = "gasEstimate")]
+        gas_estimate: String,
+        #[serde(rename = "maxFeePerGas")]
+        max_fee_per_gas: String,
+        #[serde(rename = "maxPriorityFeePerGas")]
+        max_priority_fee_per_gas: String,
+    },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DopERC20Amount {
+    #[serde(rename = "tokenAddress")]
+    pub token_address: String,
+    pub amount: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FeeTokenDetails {
+    #[serde(rename = "tokenAddress")]
+    pub token_address: String,
+    #[serde(rename = "maxAmount")]
+    pub max_amount: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]

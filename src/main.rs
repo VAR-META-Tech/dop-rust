@@ -1,7 +1,6 @@
 mod dop;
-use dop::{DopClient, DopERC20Amount};
+use dop::DopClient;
 use serde_json::json;
-use std::{collections::HashMap, ffi::c_long};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

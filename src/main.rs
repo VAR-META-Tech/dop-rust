@@ -1,14 +1,16 @@
 mod dop;
-use dop::{DopClient, DopERC20Amount};
+use dop::DopClient;
 use serde_json::json;
-use std::{collections::HashMap, ffi::c_long};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut engine = DopClient::new();
     engine.start();
     engine.wait_for_api_ready().await;
+    println!("✅ Node.js API is HERE");
     engine.init_engine(None, None, None, None, None).await?;
+
+    println!("✅ BEFORE GENERATE MNEMONIC");
 
     let mnemonic = engine.generate_mnemonic(Some(12)).await?;
     let encryption_key = "0101010101010101010101010101010101010101010101010101010101010101";
@@ -16,7 +18,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let wallet_info = engine
         .create_wallet(&mnemonic, encryption_key, None)
         .await?;
-    let dop_address = wallet_info["dopAddress"]
+    let _dop_address = wallet_info["dopAddress"]
         .as_str()
         .expect("Missing dopAddress in walletInfo");
 
@@ -46,6 +48,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ]
     });
     let polling_interval = 10_000; // 1 minute
+
     engine
         .load_provider(
             fallback_providers,

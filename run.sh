@@ -13,4 +13,5 @@ echo "================="
 echo "Running Rust App"
 echo "================="
 
-cargo run
+RUSTFLAGS="-A dead_code" cargo build
+RUSTFLAGS="-A dead_code" cargo run

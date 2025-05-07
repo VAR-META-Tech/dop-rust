@@ -30,8 +30,14 @@ import { Chain } from "dop-sharedmodels-v3";
 export const walletRouter = express.Router();
 
 walletRouter.get("/mnemonic", (req, res) => {
+  console.log("Generating mnemonic...");
   const words = parseInt(req.query.words as string);
+  console.log("Words: ", words);
   const mnemonic = generateMnemonic(words === 24 ? 24 : 12);
+  if (!mnemonic) {
+    res.status(500).send("Failed to generate mnemonic");
+    return;
+  }
   res.json({ mnemonic });
 });
 

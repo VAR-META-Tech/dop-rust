@@ -1,9 +1,8 @@
 use super::{
-    CommitmentSummary, DopClient, DopERC20AmountRecipient, DopNFTAmountRecipient,
+    DopClient, DopERC20AmountRecipient, DopNFTAmountRecipient,
     DopPopulateTransactionResponse, DopTransactionGasEstimateResponse, FeeTokenDetails,
     TransactionGasDetails,
 };
-use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 impl DopClient {

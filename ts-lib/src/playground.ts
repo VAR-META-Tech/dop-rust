@@ -18,7 +18,7 @@ import {
   closeEngine,
   getEngineInstanceInfo,
 } from "./core/engine.js";
-import { createWallet, getWalletById } from "./core/wallet.js";
+import { createWallet, generateMnemonic, getWalletById } from "./core/wallet.js";
 import {
   ContractTransaction,
   FallbackProvider,
@@ -333,6 +333,8 @@ const txidVersion = getTestTXIDVersion();
     });
     await initTestEngineNetworks();
     console.log("🔧 DOP Engine initialized successfully.");
+    const mnemonicTest = generateMnemonic(12);
+    console.log("Generated mnemonic:", mnemonicTest);
     const dopWalletInfo = await createDopWallet(
       MOCK_DB_ENCRYPTION_KEY,
       MOCK_MNEMONIC,

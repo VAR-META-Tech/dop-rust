@@ -18,7 +18,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let wallet_info = engine
         .create_wallet(&mnemonic, encryption_key, None)
         .await?;
-    let dop_address = wallet_info["dopAddress"]
+    let _dop_address = wallet_info["dopAddress"]
         .as_str()
         .expect("Missing dopAddress in walletInfo");
 

@@ -15,6 +15,7 @@ engineRouter.post("/init", async (req, res) => {
             useNativeArtifacts,
             skipMerkletreeScans,
         });
+        console.log("INIT ENGINE TEST");
         res.send({
             message: "Engine initialized successfully",
             dbPath: dbPath || "test.db",

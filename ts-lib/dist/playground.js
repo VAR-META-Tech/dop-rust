@@ -1,5 +1,6 @@
 import { EVMGasType, NETWORK_CONFIG, NetworkName, NFTTokenType, } from "dop-sharedmodels-v3";
 import { initEngine, closeEngine, } from "./core/engine.js";
+import { generateMnemonic } from "./core/wallet.js";
 import { createDopWallet, loadProvider, getEngine, gasEstimateForEncryptBaseToken, } from "dop-wallet-v3";
 export const MOCK_FALLBACK_PROVIDER_JSON_CONFIG = {
     chainId: 137,
@@ -237,6 +238,8 @@ const txidVersion = getTestTXIDVersion();
         });
         await initTestEngineNetworks();
         console.log("🔧 DOP Engine initialized successfully.");
+        const mnemonicTest = generateMnemonic(12);
+        console.log("Generated mnemonic:", mnemonicTest);
         const dopWalletInfo = await createDopWallet(MOCK_DB_ENCRYPTION_KEY, MOCK_MNEMONIC, undefined // creationBlockNumbers
         );
         console.log("DOP Wallet Info:", dopWalletInfo);

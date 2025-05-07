@@ -8,7 +8,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut engine = DopClient::new();
     engine.start();
     engine.wait_for_api_ready().await;
+    println!("✅ Node.js API is HERE");
     engine.init_engine(None, None, None, None, None).await?;
+
+    println!("✅ BEFORE GENERATE MNEMONIC");
 
     let mnemonic = engine.generate_mnemonic(Some(12)).await?;
     let encryption_key = "0101010101010101010101010101010101010101010101010101010101010101";
@@ -46,6 +49,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ]
     });
     let polling_interval = 10_000; // 1 minute
+
     engine
         .load_provider(
             fallback_providers,

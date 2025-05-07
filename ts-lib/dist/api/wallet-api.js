@@ -5,8 +5,14 @@ import { assertValidDopAddress, assertValidEthAddress, awaitMultipleWalletScans,
 import { toUtf8Bytes } from "ethers";
 export const walletRouter = express.Router();
 walletRouter.get("/mnemonic", (req, res) => {
+    console.log("Generating mnemonic...");
     const words = parseInt(req.query.words);
+    console.log("Words: ", words);
     const mnemonic = generateMnemonic(words === 24 ? 24 : 12);
+    if (!mnemonic) {
+        res.status(500).send("Failed to generate mnemonic");
+        return;
+    }
     res.json({ mnemonic });
 });
 walletRouter.post("/wallet", async (req, res) => {

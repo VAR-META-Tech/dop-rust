@@ -2,5 +2,3 @@
 /database/*
 !/database/readme.md
 
-/ts-lib/database/*
-!/ts-lib/database/readme.md

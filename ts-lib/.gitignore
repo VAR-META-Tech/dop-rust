@@ -64,4 +64,5 @@ package-lock.json
 .eslintcache
 *v8.log
 /lib/
-database/
+/database/*
+!/database/readme.md

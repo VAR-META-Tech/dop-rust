@@ -1,4 +1,4 @@
 /target
 /database/*
 !/database/readme.md
-
+ts-lib/node_modules/

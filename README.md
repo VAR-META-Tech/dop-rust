@@ -126,6 +126,3 @@ Make sure the Node backend is built (automatically or manually).
 
 MIT or Apache 2.0 — choose one and update `Cargo.toml`.
 
----
-
-Would you like me to also include a `docs.rs` badge or setup GitHub Actions for CI?

@@ -1,12 +1,20 @@
 #!/bin/bash
-set -e  # Stop on error
 
-echo "================================="
-echo "Building TypeScript SDK (ts-lib)"
-echo "================================="
+set -e  # Exit immediately on error
 
-cd ts-lib || exit 1
-npm install || exit 1
-npm run build || exit 1
-cd ..
+echo "📦 Installing Node dependencies..."
+cd ts-lib
 
+if [ ! -d "node_modules" ]; then
+  npm install
+fi
+
+echo "🔨 Building TypeScript..."
+npm run build
+
+if [ ! -f "dist/index.js" ]; then
+  echo "❌ Build failed: dist/index.js not found."
+  exit 1
+fi
+
+echo "✅ Build complete: ts-lib/dist/index.js is ready."

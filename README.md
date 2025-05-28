@@ -80,6 +80,8 @@ async fn main() {
 
 > 🛠 The SDK will automatically run `npm install` and `npm run build` (via `build.rs`) when you compile with `cargo build`.
 
+[Sample integration here](https://github.com/VAR-META-Tech/dop-rust-sample-integration) 
+
 ---
 
 ### 🧪 Option 2: Clone Locally (for development or contributions)

@@ -1,9 +1,6 @@
-Ah! You want your `README.md` to **guide users on both ways to use the SDK**:
-
+## Installation:
 1. ✅ **Use as a dependency** (via `git` in `Cargo.toml`)
 2. ✅ **Clone and build locally** (develop/test directly inside the SDK repo)
-
-Here's an updated and clean version of your `README.md` with **two clear usage paths**.
 
 ---
 

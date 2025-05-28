@@ -82,17 +82,8 @@ engineRouter.post("/set-loggers", (req, res) => {
 
 engineRouter.post("/load-provider", async (req, res) => {
   const { config, network, pollingInterval } = req.body;
-  console.log(
-    "Loading provider with config:",
-    config,
-    "network:",
-    network,
-    "pollingInterval:",
-    pollingInterval
-  );
   try {
     const response = await loadProvider(config, network, pollingInterval);
-    console.log("Provider loaded successfully:", response);
     res.json(response);
   } catch (err) {
     console.error("Failed to load provider:", err);
@@ -110,7 +101,6 @@ engineRouter.post("/scan-contract-history", async (req, res) => {
 
     await scanContractHistory(parseChain(chain), walletIdFilter);
     res.sendStatus(204);
-    console.log("Contract history scanned successfully");
   } catch (err) {
     console.error("❌ Failed to scan contract history:", err);
     res.status(500).send("Failed to scan contract history");

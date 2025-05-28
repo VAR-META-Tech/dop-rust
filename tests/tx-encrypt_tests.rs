@@ -31,11 +31,9 @@ async fn setup_engine() -> Result<DopClient> {
     engine
         .load_provider(fallback_providers, "Ethereum_Sepolia", Some(10_000))
         .await?;
-    println!("✅ Provider loaded");
 
     let chain = json!({ "type": 0, "id": 11155111 });
     engine.scan_contract_history(chain, None).await?;
-    println!("✅ scan_contract_history success");
 
     Ok(engine)
 }

@@ -8,8 +8,6 @@ impl DopClient {
         chain: Value,
         wallet_ids: Option<Vec<String>>,
     ) -> Result<()> {
-        println!("Refreshing balances for chain: {}", chain);
-
         let payload = json!({
             "chain": chain,
             "walletIdFilter": wallet_ids,
@@ -30,11 +28,6 @@ impl DopClient {
         chain: Value,
         wallet_ids: Option<Vec<String>>,
     ) -> Result<()> {
-        println!(
-            "Rescanning UTXO merkletrees and wallets for chain: {}",
-            chain
-        );
-
         let payload = json!({
             "chain": chain,
             "walletIdFilter": wallet_ids,
@@ -51,8 +44,6 @@ impl DopClient {
     }
 
     pub async fn reset_full_txid_merkletrees_v2(&self, chain: Value) -> Result<()> {
-        println!("Resetting full TXID merkletrees V2 for chain: {}", chain);
-
         let payload = json!({
             "chain": chain,
         });

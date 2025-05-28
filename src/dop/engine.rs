@@ -79,8 +79,6 @@ impl DopClient {
         chain: Value,
         wallet_ids: Option<Vec<String>>,
     ) -> Result<()> {
-        println!("Scanning contract history for chain: {}", chain);
-
         let payload = json!({
             "chain": chain,
             "walletIdFilter": wallet_ids,
@@ -112,11 +110,6 @@ impl DopClient {
         network: &str,
         polling_interval: Option<u64>,
     ) -> Result<Value> {
-        println!(
-            "Loading provider for network: {}, polling every {:?}",
-            network, polling_interval
-        );
-
         let payload = match polling_interval {
             Some(interval) => json!({
                 "config": config,
@@ -138,12 +131,10 @@ impl DopClient {
 
         if res.status().is_success() {
             let json_res = res.json::<Value>().await?;
-            println!("✅ Provider loaded successfully: {:?}", json_res);
             Ok(json_res)
         } else {
             let status = res.status();
             let err_text = res.text().await.unwrap_or_default();
-            println!("❌ Failed to load provider: HTTP {} - {}", status, err_text);
             Err(anyhow!(
                 "Failed to load provider: HTTP {} - {}",
                 status,

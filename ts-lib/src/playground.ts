@@ -186,7 +186,6 @@ const loadEngineProvider = async () => {
       NetworkName.Ethereum,
       pollingInterval
     );
-    console.log("Fees:", feesSerialized);
   } catch (err) {
     console.error("❌ Failed to load provider:", err);
   }

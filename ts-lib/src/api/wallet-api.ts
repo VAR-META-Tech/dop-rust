@@ -158,13 +158,11 @@ walletRouter.delete("/wallet/:id/delete", async (req, res) => {
 walletRouter.get("/wallet/address-data", (req, res) => {
   const { address } = req.query;
   try {
-    console.log("Address:", address);
     if (typeof address !== "string") {
       res.status(400).send("Invalid address format");
       return;
     }
     const data = getDopWalletAddressData(address);
-    console.log("Data:", data);
     res.json({
       masterPublicKey: data.masterPublicKey?.toString?.() ?? null,
       viewingPublicKey: Array.from(data.viewingPublicKey || []),
@@ -190,7 +188,6 @@ walletRouter.get("/wallet/:id/private-viewing-key", (req, res) => {
 // Get DOP address
 walletRouter.get("/wallet/:id/dop-address", (req, res) => {
   const { id } = req.params;
-  console.log("ID:", id);
   try {
     const dopAddress = getDopAddress(id);
     res.json({ dopAddress });

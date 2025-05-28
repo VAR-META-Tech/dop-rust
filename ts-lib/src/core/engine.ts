@@ -40,7 +40,6 @@ export const initEngine = async ({
   useNativeArtifacts?: boolean;
   skipMerkletreeScans?: boolean;
 }) => {
-  console.log(`[Engine Init] ${engineName} with DB: ${dbPath}`);
   const db = new LevelDOWN(dbPath);
 
   return await startDopEngine(
@@ -51,8 +50,6 @@ export const initEngine = async ({
     useNativeArtifacts,
     skipMerkletreeScans
   );
-
-  console.log("[Engine Init] DOP engine initialized successfully.");
 };
 
 export const getEngineInstance = () => getEngine();
@@ -60,7 +57,6 @@ export const getEngineInstance = () => getEngine();
 export const getEngineInstanceInfo = () => {
   const engine = getEngine();
   if (!engine) return null;
-  console.log("Engine instance:", engine);
   return {
     wallets: Object.keys(engine?.wallets || {}),
     deploymentBlocks: engine?.deploymentBlocks,

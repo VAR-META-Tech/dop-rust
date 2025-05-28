@@ -44,25 +44,20 @@ async fn test_balance_operations() -> Result<()> {
             Some(polling_interval),
         )
         .await?;
-    println!("✅ Provider loaded");
 
     // 1. Test refresh_balances
     engine.refresh_balances(chain.clone(), None).await?;
-    println!("✅ refresh_balances success");
 
     // 2. Test reset_full_txid_merkletrees_v2
     engine.reset_full_txid_merkletrees_v2(chain.clone()).await?;
-    println!("✅ reset_full_txid_merkletrees_v2 success");
 
     // 3. Test scan_contract_history
     engine.scan_contract_history(chain.clone(), None).await?;
-    println!("✅ scan_contract_history success");
 
     // 4. Test rescan_full_utxo_merkletrees_and_wallets
     engine
         .rescan_full_utxo_merkletrees_and_wallets(chain.clone(), None)
         .await?;
-    println!("✅ rescan_full_utxo_merkletrees_and_wallets success");
 
     engine.close_engine().await?;
     Ok(())

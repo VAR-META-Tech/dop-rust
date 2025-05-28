@@ -120,7 +120,6 @@ const loadEngineProvider = async () => {
     const pollingInterval = 1000 * 60 * 5; // 5 min
     try {
         const { feesSerialized } = await loadProvider(ETH_PROVIDERS_JSON, NetworkName.Ethereum, pollingInterval);
-        console.log("Fees:", feesSerialized);
     }
     catch (err) {
         console.error("❌ Failed to load provider:", err);

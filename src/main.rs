@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "priority": 3,
                 "weight": 2,
                 "maxLogsPerBatch": 5
-            }
+            }       
         ]
     });
     let polling_interval = 10_000; // 1 minute

@@ -17,7 +17,6 @@ txTransferRouter.post("/populate-proved-transfer", async (req, res) => {
         safeJsonResponse(res, tx);
     }
     catch (err) {
-        console.error("❌ Failed to populate proved transfer:", err);
         res.status(500).json({
             error: "Failed to populate proved transfer",
             details: err?.message ?? String(err),
@@ -40,7 +39,6 @@ txTransferRouter.post("/gas-estimate-for-unproven-transfer", async (req, res) =>
         safeJsonResponse(res, estimate);
     }
     catch (err) {
-        console.error("❌ Failed to estimate gas for unproven transfer:", err);
         res.status(500).json({
             error: "Failed to estimate gas for unproven transfer",
             details: err?.message ?? String(err),
@@ -60,7 +58,6 @@ txTransferRouter.post("/generate-transfer-proof", async (req, res) => {
         res.status(200).json({ message: "Transfer proof generation complete" });
     }
     catch (err) {
-        console.error("❌ Failed to generate transfer proof:", err);
         res.status(500).json({
             error: "Failed to generate transfer proof",
             details: err?.message ?? String(err),

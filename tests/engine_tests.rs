@@ -63,7 +63,6 @@ async fn test_set_loggers() -> Result<()> {
 
     // ✅ Set logger
     let result = engine.set_loggers().await;
-    println!("Set loggers result: {:#?}", result);
     assert!(result.is_ok(), "Failed to set loggers");
 
     engine.close_engine().await?;
@@ -106,7 +105,6 @@ async fn test_load_provider() -> Result<()> {
         .load_provider(config, network_name, Some(polling_interval_ms))
         .await?;
 
-    println!("✅ load_provider success: {:#?}", result);
 
     engine.close_engine().await?;
 

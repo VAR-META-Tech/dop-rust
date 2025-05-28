@@ -5,7 +5,6 @@ export const balanceRouter = express.Router();
 // POST /wallet/refresh-balances
 balanceRouter.post("/refresh-balances", async (req, res) => {
     try {
-        console.log("Refreshing balances...");
         const { chain, walletIdFilter } = req.body;
         if (!chain) {
             res.status(400).send("Missing chain");
@@ -13,10 +12,8 @@ balanceRouter.post("/refresh-balances", async (req, res) => {
         }
         await refreshBalances(parseChain(chain), walletIdFilter);
         res.sendStatus(204);
-        console.log("Balances refreshed successfully");
     }
     catch (err) {
-        console.log("❌ Failed to refresh balances:", err);
         console.error("❌ Failed to refresh balances:", err);
         res.status(500).send("Failed to refresh balances");
     }

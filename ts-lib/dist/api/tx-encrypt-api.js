@@ -8,8 +8,6 @@ function safeJsonResponse(res, data) {
 }
 // POST /wallet/gas-estimate-for-encrypt-base-token
 txEncyptRouter.post("/gas-estimate-for-encrypt-base-token", async (req, res) => {
-    console.log("Estimating gas for encrypt base token...");
-    console.log("Request body:", req.body);
     try {
         const { txidVersion, networkName, dopAddress, encryptPrivateKey, wrappedERC20Amount, fromWalletAddress, } = req.body;
         if (!txidVersion ||

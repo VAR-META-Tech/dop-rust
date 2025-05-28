@@ -56,7 +56,6 @@ impl DopClient {
     }
 
     pub fn start(&mut self) {
-        println!("Starting Node.js DOP Engine...");
         let child = Command::new("node")
             .arg("ts-lib/dist/index.js")
             .spawn()

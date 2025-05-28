@@ -44,7 +44,6 @@ impl DopClient {
             .send()
             .await?;
 
-        println!("Response status: {:?}", resp.status());
         let status = resp.status();
         if !status.is_success() {
             let text = resp.text().await.unwrap_or_default();
@@ -97,7 +96,6 @@ impl DopClient {
             .send()
             .await?;
 
-        println!("Response status: {:?}", resp.status());
         let status = resp.status();
         if !status.is_success() {
             let text = resp.text().await.unwrap_or_default();
@@ -147,7 +145,6 @@ impl DopClient {
             .send()
             .await?;
 
-        println!("Response status: {:?}", resp.status());
         let status = resp.status();
         if !status.is_success() {
             let text = resp.text().await.unwrap_or_default();

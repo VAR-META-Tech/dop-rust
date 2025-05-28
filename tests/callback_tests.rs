@@ -28,11 +28,9 @@ async fn test_scan_callbacks_triggered() -> Result<(), Box<dyn std::error::Error
         "id": 11155111, // Sepolia
     });
     engine.reset_full_txid_merkletrees_v2(chain.clone()).await?;
-    println!("✅ reset_full_txid_merkletrees_v2 success");
 
     // Start the scan listeners
     engine.start_scan_listeners().await?;
-    println!("✅ Scan listeners started");
 
     // Define the chain configuration
     let chain = json!({
@@ -67,11 +65,9 @@ async fn test_scan_callbacks_triggered() -> Result<(), Box<dyn std::error::Error
             Some(polling_interval),
         )
         .await?;
-    println!("✅ Provider loaded");
 
     // Trigger scan_contract_history
     engine.scan_contract_history(chain.clone(), None).await?;
-    println!("✅ scan_contract_history invoked");
 
     // Allow some time for the callbacks to be invoked
     sleep(Duration::from_secs(5)).await;

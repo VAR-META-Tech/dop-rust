@@ -189,7 +189,6 @@ impl DopClient {
     }
 
     pub async fn get_dop_wallet_address_data(&self, address: &str) -> Result<Value> {
-        println!("Fetching address data for: {}", address);
         let res = self
             .client
             .get(&format!(
@@ -202,7 +201,6 @@ impl DopClient {
             .json::<Value>()
             .await?;
 
-        println!("Response: {:?}", res);
         Ok(res)
     }
 
@@ -281,9 +279,6 @@ impl DopClient {
     }
 
     pub async fn scan_wallet(&self, wallet_id: &str, chain: Value) -> Result<Value> {
-        println!("Scanning wallet: {}", wallet_id);
-        println!("Chain: {}", chain);
-
         let res = self
             .client
             .get(&format!("{}/wallet/{}/scan", self.base_url(), wallet_id))
@@ -302,12 +297,6 @@ impl DopClient {
         chain: Value,
         count: u32,
     ) -> Result<()> {
-        println!(
-            "Scanning wallet multiple times: {} (count: {})",
-            wallet_id, count
-        );
-        println!("Chain: {}", chain);
-
         self.client
             .get(&format!(
                 "{}/wallet/{}/scan-multiple",

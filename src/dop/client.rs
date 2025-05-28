@@ -1,8 +1,7 @@
 use reqwest::Client;
 use serde::Deserialize;
 use std::{
-    process::{Child, Command},
-    sync::{Arc, Mutex},
+    path::PathBuf, process::{Child, Command}, sync::{Arc, Mutex}
 };
 
 #[derive(Debug, Clone, Deserialize)]
@@ -56,10 +55,20 @@ impl DopClient {
     }
 
     pub fn start(&mut self) {
+        // Find where this crate is located
+        let crate_dir = env!("CARGO_MANIFEST_DIR");
+        let script_path = PathBuf::from(crate_dir).join("ts-lib/dist/index.js");
+
+        if !script_path.exists() {
+            panic!("❌ Node script not found at {:?}", script_path);
+        }
+
         let child = Command::new("node")
-            .arg("ts-lib/dist/index.js")
+            .arg(script_path.to_str().unwrap())
             .spawn()
-            .expect("Failed to start Node Engine");
+            .expect("❌ Failed to start Node Engine");
+
+        println!("🚀 Node.js engine started from {:?}", script_path);
         self.child = Some(child);
     }
 

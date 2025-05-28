@@ -1,7 +1,9 @@
 use reqwest::Client;
 use serde::Deserialize;
 use std::{
-    path::PathBuf, process::{Child, Command}, sync::{Arc, Mutex}
+    path::PathBuf,
+    process::{Child, Command},
+    sync::{Arc, Mutex},
 };
 
 #[derive(Debug, Clone, Deserialize)]
@@ -55,20 +57,46 @@ impl DopClient {
     }
 
     pub fn start(&mut self) {
-        // Find where this crate is located
         let crate_dir = env!("CARGO_MANIFEST_DIR");
-        let script_path = PathBuf::from(crate_dir).join("ts-lib/dist/index.js");
+        let ts_lib_dir = PathBuf::from(crate_dir).join("ts-lib");
+        let node_modules_dir = ts_lib_dir.join("node_modules");
+        let dist_path = ts_lib_dir.join("dist/index.js");
 
-        if !script_path.exists() {
-            panic!("❌ Node script not found at {:?}", script_path);
+        // If node_modules doesn't exist, run npm install
+        if !node_modules_dir.exists() {
+            println!("📦 node_modules not found — running `npm install`...");
+            let status = Command::new("npm")
+                .arg("install")
+                .current_dir(&ts_lib_dir)
+                .status()
+                .expect("❌ Failed to run `npm install`");
+            assert!(status.success(), "❌ `npm install` failed");
         }
 
+        // If dist/index.js doesn't exist, run npm run build
+        if !dist_path.exists() {
+            println!("🔨 dist/index.js not found — running `npm run build`...");
+            let status = Command::new("npm")
+                .args(&["run", "build"])
+                .current_dir(&ts_lib_dir)
+                .status()
+                .expect("❌ Failed to run `npm run build`");
+            assert!(status.success(), "❌ `npm run build` failed");
+        }
+
+        // Confirm dist/index.js now exists
+        assert!(
+            dist_path.exists(),
+            "❌ Build failed: dist/index.js still missing"
+        );
+
+        // Launch Node.js engine
         let child = Command::new("node")
-            .arg(script_path.to_str().unwrap())
+            .arg(dist_path.to_str().unwrap())
             .spawn()
             .expect("❌ Failed to start Node Engine");
 
-        println!("🚀 Node.js engine started from {:?}", script_path);
+        println!("🚀 Node.js engine started from {:?}", dist_path);
         self.child = Some(child);
     }
 
